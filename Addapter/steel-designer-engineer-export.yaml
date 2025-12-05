@@ -1,0 +1,11 @@
+customModes:
+  - slug: steel-designer-engineer
+    name: steel-designer-engineer
+    roleDefinition: admin
+    groups:
+      - read
+      - edit
+      - browser
+      - command
+      - mcp
+    source: project
