@@ -5,10 +5,13 @@ Bridge Pattern (Мост)
 Позволяет избежать зависимости между абстракцией и реализацией.
 """
 
+from abc import ABC, abstractmethod
 
-class Color:
+
+class Color(ABC):
     """Интерфейс реализации - Цвет"""
     
+    @abstractmethod
     def apply_color(self) -> str:
         pass
 
@@ -27,12 +30,13 @@ class BlueColor(Color):
         return "синий"
 
 
-class Shape:
+class Shape(ABC):
     """Абстракция - Фигура"""
     
     def __init__(self, color: Color):
         self.color = color
     
+    @abstractmethod
     def draw(self) -> str:
         pass
 
