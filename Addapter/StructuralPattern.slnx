@@ -1,3 +1,5 @@
 <Solution>
-  <Project Path="Addapter/Addapter.csproj" />
+  <Folder Name="/src/">
+    <Project Path="Addapter/Addapter.csproj" />
+  </Folder>
 </Solution>
