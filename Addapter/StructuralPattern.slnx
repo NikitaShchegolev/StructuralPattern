@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="Addapter/Addapter.csproj" />
+    <Project Path="Decorator/Decorator.csproj" />
   </Folder>
 </Solution>
