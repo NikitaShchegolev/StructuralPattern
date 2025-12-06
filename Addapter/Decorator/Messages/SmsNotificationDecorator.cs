@@ -25,7 +25,7 @@ namespace Decorator.Messages
         {
             base.Notify();
 
-            Console.WriteLine("SmsNotificationDecorator");
+            Console.WriteLine("Выполнен - SmsNotificationDecorator");
         }
     }
 }

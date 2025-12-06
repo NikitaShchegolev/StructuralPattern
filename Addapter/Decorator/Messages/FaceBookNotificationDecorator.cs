@@ -3,7 +3,7 @@ using Decorator.ExemplesInterface;
 
 namespace Decorator.Messages
 {
-    public class FaceBookDecorator : BaseDecorator
+    public class FaceBookNotificationDecorator : BaseDecorator
     {
         //1. public EmailNotificationDecorator(...) - это объявление конструктора класса EmailNotificationDecorator.Конструктор имеет такое же имя, как и класс.
 
@@ -19,13 +19,13 @@ namespace Decorator.Messages
         //Конкретные реализации этого интерфейса
         //Декораторы, которые "оборачивают" базовый сервис, добавляя дополнительную функциональность
 
-        public FaceBookDecorator(INotyficationService notyficationService) : base(notyficationService) { }
+        public FaceBookNotificationDecorator(INotyficationService notyficationService) : base(notyficationService) { }
 
         public override void Notify()
         {
             base.Notify();
 
-            Console.WriteLine("FaceBookDecorator");
+            Console.WriteLine("Выполнен - FaceBookDecorator");
         }
     }
 }
