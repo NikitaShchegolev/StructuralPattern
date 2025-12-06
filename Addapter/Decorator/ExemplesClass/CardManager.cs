@@ -41,7 +41,7 @@ namespace Decorator.ExemplesClass
                         switch (notificationType)
                         {
                             case NotificationType.Facebook:
-                                notyficationService = new FaceBookDecorator(notyficationService);
+                                notyficationService = new FaceBookNotificationDecorator(notyficationService);
                                 break;
                             case NotificationType.Sms:
                                 notyficationService = new SmsNotificationDecorator(notyficationService);
