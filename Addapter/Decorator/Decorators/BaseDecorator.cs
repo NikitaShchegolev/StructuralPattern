@@ -14,7 +14,6 @@ namespace Decorator.Decorators
         {
             this.notyficationService = notyficationService;
         }
-
         public virtual void Notify()
         {
             notyficationService.Notify();
