@@ -1,0 +1,94 @@
+@startuml
+' Декоратор - это структурный паттерн проектирования, который позволяет динамически добавлять объектам новую функциональность, оборачивая их в полезные «обёртки».
+' В данном примере реализован паттерн Декоратор для отправки уведомлений различными способами (Email, SMS, Facebook).
+
+' Интерфейс сервиса уведомлений
+interface INotyficationService {
+    +Notify()
+}
+
+' Базовый декоратор, реализующий интерфейс INotyficationService
+class BaseDecorator {
+    -notyficationService : INotyficationService
+    +Notify()
+}
+
+' Конкретная реализация сервиса уведомлений через приложение
+class ApplicationNotificftionService {
+    +Notify()
+}
+
+' Декораторы для различных типов уведомлений
+class EmailNotificationDecorator {
+    +Notify()
+}
+
+class FaceBookNotificationDecorator {
+    +Notify()
+}
+
+class SmsNotificationDecorator {
+    +Notify()
+}
+
+' Класс для работы с файлами
+class FileDecorator {
+    +Write()
+    +WriteArchived()
+}
+
+' Класс для настройки уведомлений
+class NotyficationOption {
+    +SendFBNotification : bool
+    +SendToMail : bool
+    +SendToSms : bool
+}
+
+' Класс для выпуска карт
+class CardIssueService {
+    +Issue(message : Message)
+}
+
+' Класс для управления картами
+class CardManager {
+    -cardIssueService : CardIssueService
+    -notyficationOption : NotyficationOption
+    +Issue()
+}
+
+' Класс сообщения
+class Message {
+    +Content : string
+}
+
+' Перечисление типов уведомлений
+enum NotificationType {
+    Facebook
+    Sms
+    Email
+}
+
+' Отношения наследования
+BaseDecorator ..|> INotyficationService
+ApplicationNotificftionService ..|> INotyficationService
+EmailNotificationDecorator --|> BaseDecorator
+FaceBookNotificationDecorator --|> BaseDecorator
+SmsNotificationDecorator --|> BaseDecorator
+
+' Отношения композиции
+CardManager o-- CardIssueService
+CardManager o-- NotyficationOption
+CardIssueService o-- Message
+
+' Отношения зависимости
+CardManager ..> INotyficationService
+CardManager ..> NotificationType
+CardManager ..> EmailNotificationDecorator
+CardManager ..> FaceBookNotificationDecorator
+CardManager ..> SmsNotificationDecorator
+EmailNotificationDecorator ..> INotyficationService
+FaceBookNotificationDecorator ..> INotyficationService
+SmsNotificationDecorator ..> INotyficationService
+BaseDecorator ..> INotyficationService
+
+@enduml

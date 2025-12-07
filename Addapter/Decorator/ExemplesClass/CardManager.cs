@@ -10,15 +10,27 @@ using Decorator.Messages;
 
 namespace Decorator.ExemplesClass
 {
+    /// <summary>
+    /// Менеджер для управления картами.
+    /// </summary>
     public class CardManager
     {
         private CardIssueService _cardIssueService;
         private NotyficationOption _notyficationOption;
+        
+        /// <summary>
+        /// Инициализирует новый экземпляр класса CardManager.
+        /// </summary>
+        /// <param name="notyficationOption">Опции уведомлений.</param>
         public CardManager(NotyficationOption notyficationOption)
         {
             _cardIssueService = new CardIssueService();
             _notyficationOption = notyficationOption;
         }
+        
+        /// <summary>
+        /// Выпускает карту и отправляет уведомления.
+        /// </summary>
         public void Issue()
         {
             _cardIssueService.Issue(new Message());
