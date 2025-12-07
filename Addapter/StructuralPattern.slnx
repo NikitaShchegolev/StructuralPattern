@@ -2,5 +2,6 @@
   <Folder Name="/src/">
     <Project Path="Addapter/Addapter.csproj" />
     <Project Path="Decorator/Decorator.csproj" />
+    <Project Path="Proxy/Proxy.csproj" Id="60dc037e-8088-45d5-a95e-5707bb264ce5" />
   </Folder>
 </Solution>

@@ -5,6 +5,9 @@ using System.Text;
 
 namespace Decorator.ExemplesClass
 {
+    /// <summary>
+    /// Статический класс для работы с файлами и их архивацией.
+    /// </summary>
     public static class FileDecorator
     {
         private const string StringToWrite = "Мой дядя самых честных правил,\n" +
@@ -23,7 +26,9 @@ namespace Decorator.ExemplesClass
             "Когда же черт возьмет тебя!";
         private const string Folder = "C://Users//n.shchegolev//source//repos//StructuralPattern2//Addapter//Decorator";
         
-
+        /// <summary>
+        /// Записывает текст в файл.
+        /// </summary>
         public static void Write()
         {
             using (FileStream fileStream = new FileStream($"{Folder}/createFileTxt.txt", FileMode.Create))
@@ -33,6 +38,9 @@ namespace Decorator.ExemplesClass
             }
         }
 
+        /// <summary>
+        /// Записывает текст в архивированный файл.
+        /// </summary>
         public static void WriteArchived()
         {
             using (FileStream fileStream = new FileStream($"{Folder}/archived.gz", FileMode.Create))
