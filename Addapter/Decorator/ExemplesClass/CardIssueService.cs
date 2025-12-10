@@ -14,7 +14,9 @@ namespace Decorator.ExemplesClass
         /// </summary>
         /// <param name="message">Сообщение, связанное с выпуском карты.</param>
         public void Issue(Message message)
-        {           
+        {
+            message.Content = "Выполнен - CardIssueService";
+            Console.WriteLine(message.Content);
         }
     }
 }

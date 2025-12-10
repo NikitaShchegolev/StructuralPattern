@@ -42,10 +42,10 @@ namespace Decorator.ExemplesClass
             notificationTypes.Add(NotificationType.Sms);
             notificationTypes.Add(NotificationType.Email);
 
-            for (int i = 0; i < notificationTypes.Count; i++)
+            foreach (object item in notificationTypes)
             {
                 NotificationType notificationType;
-                bool success = Enum.TryParse<NotificationType>(notificationTypes[i].ToString(), out notificationType);
+                bool success = Enum.TryParse<NotificationType>(item.ToString(), out notificationType);
 
                 switch (success)//проверка преобразования к типу Enum
                 {

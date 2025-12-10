@@ -35,6 +35,7 @@ namespace Decorator.ExemplesClass
             {
                 byte[] buffer = Encoding.Default.GetBytes(StringToWrite);
                 fileStream.Write(buffer);
+                Console.WriteLine("Записывает текст в файл...");
             }
         }
 
@@ -48,6 +49,7 @@ namespace Decorator.ExemplesClass
             {
                 byte[] bytes = Encoding.Default.GetBytes(StringToWrite);
                 gZipStream.Write(bytes);
+                Console.WriteLine("Записывает текст в архивированный файл....");
             }
         }
     }
