@@ -12,6 +12,6 @@ namespace Decorator.Messages
         /// <summary>
         /// Содержимое сообщения
         /// </summary>
-        public string Content { get; set; }
+        public string? Content { get; set; } 
     }
 }
