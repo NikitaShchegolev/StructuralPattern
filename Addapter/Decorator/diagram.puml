@@ -40,13 +40,13 @@ class NotyficationOption {
 }
 
 ' Класс для выпуска карт
-class CardIssueService {
+class MessageService {
     +Issue(message : Message)
 }
 
 ' Класс для управления картами
 class MessageManager {
-    -cardIssueService : CardIssueService
+    -MessageService : MessageService
     -notyficationOption : NotyficationOption
     +Issue()
 }
@@ -71,9 +71,9 @@ FaceBookNotificationDecorator --|> BaseDecorator
 SmsNotificationDecorator --|> BaseDecorator
 
 ' Отношения композиции
-MessageManager o-- CardIssueService
+MessageManager o-- MessageService
 MessageManager o-- NotyficationOption
-CardIssueService o-- Message
+MessageService o-- Message
 
 ' Отношения зависимости
 MessageManager ..> INotyficationService

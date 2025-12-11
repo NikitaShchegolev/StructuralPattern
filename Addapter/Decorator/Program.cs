@@ -12,7 +12,6 @@ namespace Decorator
                 SendToMail = true,
                 SendToSms = true
             };
-
             var decorator = new MessageManager(notificationOption);
             decorator.Issue();
             Console.ReadKey();
