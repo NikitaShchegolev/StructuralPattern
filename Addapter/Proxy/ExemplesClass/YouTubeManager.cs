@@ -14,9 +14,9 @@ namespace Proxy.ExemplesClass
         {
             return _youTubeManager.GetVideoInfo(id);
         }
-        public void RenderVideoPage(int id) 
+        public void RenderVideoPage() 
         { 
-            var videoInfo = GetVideoInfo(id);
+            var videoInfo = GetVideoInfo(1);
             Render(videoInfo);
         }
 
