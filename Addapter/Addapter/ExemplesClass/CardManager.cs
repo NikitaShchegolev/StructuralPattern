@@ -8,7 +8,7 @@ using Addapter.ExemplesClass;
 namespace Addapter.ExemplesClass
 {
     /// <summary>
-    /// Менеджер для управления картами
+    /// CardIssueService работает с объектами Message для выпуска карт
     /// </summary>
     public class CardManager
     {
@@ -20,6 +20,7 @@ namespace Addapter.ExemplesClass
         public string Issue(CardInfo cardInfo)
         {
             var cardInfoService = new CardIssueService();
+            //класс адаптер
             ICardIssueServiceAdapter adaptor = new CardIssueServiceAdapter(cardInfoService);
             adaptor.Issue(cardInfo);
             Console.WriteLine(adaptor.Issue(cardInfo));
@@ -27,3 +28,4 @@ namespace Addapter.ExemplesClass
         }
     }
 }
+ 

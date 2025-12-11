@@ -13,14 +13,9 @@ namespace Decorator
                 SendToSms = true
             };
 
-            var decorator = new CardManager(notificationOption);
+            var decorator = new MessageManager(notificationOption);
             decorator.Issue();
-            FileDecorator.Write();
-            Console.WriteLine("Создан txt...");
-            FileDecorator.WriteArchived();
-            Console.WriteLine("Заархивирован txt...");
             Console.ReadKey();
-
         }
     }
 }

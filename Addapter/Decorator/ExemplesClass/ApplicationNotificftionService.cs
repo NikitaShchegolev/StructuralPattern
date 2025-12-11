@@ -6,7 +6,7 @@ using Decorator.ExemplesInterface;
 namespace Decorator.ExemplesClass
 {
     /// <summary>
-    /// Реализация сервиса уведомлений через приложение.
+    /// Реализация сервиса уведомлений
     /// </summary>
     public class ApplicationNotificftionService : INotyficationService
     {

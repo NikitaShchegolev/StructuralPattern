@@ -20,9 +20,9 @@ namespace Addapter.ExemplesClass
         {
             _cardIssueService = cardIssueService;
         }
-        
+
         /// <summary>
-        /// Выпускает карту с заданными параметрами
+        /// Адаптируемый CardInfo файл
         /// </summary>
         /// <param name="cardInfo">Информация о карте</param>
         /// <returns>Строка с информацией о выпущенной карте</returns>

@@ -3,7 +3,7 @@
 namespace Addapter.ExemplesClass
 {
     /// <summary>
-    /// Поля для идентификации создаваемой карты
+    /// Адаптруемый сласс через CardIssueServiceAdapter
     /// </summary>
     public class CardInfo
     {
