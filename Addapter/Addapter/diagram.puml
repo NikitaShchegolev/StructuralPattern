@@ -1,0 +1,54 @@
+@startuml
+
+' Интерфейс сервиса уведомлений
+interface ICardIssueServiceAdepter {
+    +Notify()
+}
+
+' Адаптер для сервиса выпуска карт
+class CardIssueServiceAdapter {
+    + _cardIssueService : CardIssueService
+    +Issue()
+    
+}
+' Класс для идентификации выпущенных карт
+class CardInfo {
+    +Id : Guid
+    +StarDate : DateTime
+    +ExepirationDate : DateTime
+    +message : Message
+}
+
+' Класс для выпуска карт
+class CardIssueService {
+    +Issue(message : Message)
+}
+
+' Класс для управления картами
+class CardManager {
+    +Issue()
+}
+
+' Класс сообщения
+class Message {
+    +Content : string
+}
+
+
+
+' Отношения композиции
+
+CardIssueServiceAdapter o-- CardInfo
+
+' Отношения зависимости
+CardManager ..> CardIssueServiceAdapter
+CardIssueServiceAdapter --|> CardIssueService
+CardIssueService --> ICardIssueServiceAdepter
+
+' Отношения композиции
+
+CardIssueService o-- Message
+
+
+
+@enduml

@@ -31,11 +31,6 @@ class SmsNotificationDecorator {
     +Notify()
 }
 
-' Класс для работы с файлами
-class FileDecorator {
-    +Write()
-    +WriteArchived()
-}
 
 ' Класс для настройки уведомлений
 class NotyficationOption {
@@ -50,7 +45,7 @@ class CardIssueService {
 }
 
 ' Класс для управления картами
-class CardManager {
+class MessageManager {
     -cardIssueService : CardIssueService
     -notyficationOption : NotyficationOption
     +Issue()
@@ -76,16 +71,16 @@ FaceBookNotificationDecorator --|> BaseDecorator
 SmsNotificationDecorator --|> BaseDecorator
 
 ' Отношения композиции
-CardManager o-- CardIssueService
-CardManager o-- NotyficationOption
+MessageManager o-- CardIssueService
+MessageManager o-- NotyficationOption
 CardIssueService o-- Message
 
 ' Отношения зависимости
-CardManager ..> INotyficationService
-CardManager ..> NotificationType
-CardManager ..> EmailNotificationDecorator
-CardManager ..> FaceBookNotificationDecorator
-CardManager ..> SmsNotificationDecorator
+MessageManager ..> INotyficationService
+MessageManager ..> NotificationType
+MessageManager ..> EmailNotificationDecorator
+MessageManager ..> FaceBookNotificationDecorator
+MessageManager ..> SmsNotificationDecorator
 EmailNotificationDecorator ..> INotyficationService
 FaceBookNotificationDecorator ..> INotyficationService
 SmsNotificationDecorator ..> INotyficationService

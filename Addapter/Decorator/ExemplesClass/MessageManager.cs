@@ -13,7 +13,7 @@ namespace Decorator.ExemplesClass
     /// <summary>
     /// Менеджер для управления картами.
     /// </summary>
-    public class CardManager
+    public class MessageManager
     {
         private CardIssueService _cardIssueService;
         private NotyficationOption _notyficationOption;
@@ -22,7 +22,7 @@ namespace Decorator.ExemplesClass
         /// Инициализирует новый экземпляр класса CardManager.
         /// </summary>
         /// <param name="notyficationOption">Опции уведомлений.</param>
-        public CardManager(NotyficationOption notyficationOption)
+        public MessageManager(NotyficationOption notyficationOption)
         {
             _cardIssueService = new CardIssueService();
             _notyficationOption = notyficationOption;
