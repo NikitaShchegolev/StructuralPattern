@@ -22,7 +22,8 @@ namespace Addapter
                 StarDate = DateTime.UtcNow,
                 ExepirationDate = DateTime.UtcNow
             };
-
+            //Здесь класс CardInfo - адаптируемый файл
+            //А класс CardIssueServiceAdapter - адаптор для класса CardInfo
             var cardManager = new CardManager();
             cardManager.Issue(cardInfo);
             Console.ReadKey();

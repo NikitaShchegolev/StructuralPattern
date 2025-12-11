@@ -3,10 +3,10 @@ using Proxy.Interfaces;
 
 namespace Proxy.ExemplesClass
 {
-    public class YouManager
+    public class YouTubeManager
     {
         private IYouTubeThirdPartyManager _youTubeManager;
-        public YouManager(IYouTubeThirdPartyManager youTubeManager)
+        public YouTubeManager(IYouTubeThirdPartyManager youTubeManager)
         {
             _youTubeManager = youTubeManager;
         }
@@ -22,7 +22,9 @@ namespace Proxy.ExemplesClass
 
         private void Render(VideoInfo videoInfo)
         {
-            Console.WriteLine("Hi");
+            videoInfo.Id = Guid.NewGuid();
+            videoInfo.DownloadDate = DateTime.UtcNow;
+            Console.WriteLine($"Видео создано: {videoInfo.DownloadDate}\nGuid: {videoInfo.Id}");
         }
     }
 }

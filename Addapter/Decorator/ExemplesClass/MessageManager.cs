@@ -15,7 +15,7 @@ namespace Decorator.ExemplesClass
     /// </summary>
     public class MessageManager
     {
-        private CardIssueService _cardIssueService;
+        private MessageService _messageService;
         private NotyficationOption _notyficationOption;
         
         /// <summary>
@@ -24,7 +24,7 @@ namespace Decorator.ExemplesClass
         /// <param name="notyficationOption">Опции уведомлений.</param>
         public MessageManager(NotyficationOption notyficationOption)
         {
-            _cardIssueService = new CardIssueService();
+            _messageService = new MessageService();
             _notyficationOption = notyficationOption;
         }
         
@@ -33,7 +33,7 @@ namespace Decorator.ExemplesClass
         /// </summary>
         public void Issue()
         {
-            _cardIssueService.Issue(new Message());
+            _messageService.Issue(new Message());
             INotyficationService notyficationService = new ApplicationNotificftionService();
 
             ArrayList notificationTypes = new ArrayList();

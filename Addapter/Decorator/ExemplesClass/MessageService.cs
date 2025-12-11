@@ -7,7 +7,7 @@ namespace Decorator.ExemplesClass
     /// <summary>
     /// Сервис для выпуска карт.
     /// </summary>
-    public class CardIssueService
+    public class MessageService
     {
         /// <summary>
         /// Выпускает карту с указанным сообщением.

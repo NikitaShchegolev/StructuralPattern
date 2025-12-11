@@ -1,21 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Decorator.ExemplesInterface;
+﻿using Decorator.ExemplesInterface;
 
 namespace Decorator.ExemplesClass
 {
-    /// <summary>
-    /// Реализация сервиса уведомлений
-    /// </summary>
-    public class ApplicationNotificftionService : INotyficationService
+    internal class ApplicationNotificftionService : INotyficationService
     {
-        /// <summary>
-        /// Отправляет уведомление через консоль.
-        /// </summary>
-        public void Notify()
+        void INotyficationService.Notify()
         {
-            Console.WriteLine("Выполнен - ApplicationNotificftionService");
+            Console.WriteLine("Выполненн - ApplicationNotificftionService");
         }
     }
 }

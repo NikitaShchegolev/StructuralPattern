@@ -6,8 +6,8 @@ namespace Proxy
         static void Main(string[] args)
         {
             YouTubeThirdPartyManager youTubeThirdPartyManager = new YouTubeThirdPartyManager();
-            YouTubeThirdPartyManagerCached youTubeThirdPartyManagerCached = new YouTubeThirdPartyManagerCached(youTubeThirdPartyManager);
-            YouManager youManager = new YouManager(youTubeThirdPartyManagerCached);
+            YouTubeThirdPartyManagerDictionaryVideo youTubeThirdPartyManagerDictionaryVideo = new YouTubeThirdPartyManagerDictionaryVideo(youTubeThirdPartyManager);
+            YouTubeManager youManager = new YouTubeManager(youTubeThirdPartyManagerDictionaryVideo);
             youManager.RenderVideoPage(1);
             Console.ReadKey();
         }
