@@ -5,10 +5,10 @@ namespace Proxy
     {
         static void Main(string[] args)
         {
-            YouTubeThirdPartyManager youTubeThirdPartyManager = new YouTubeThirdPartyManager();
-            YouTubeThirdPartyManagerDictionaryVideo youTubeThirdPartyManagerDictionaryVideo = new YouTubeThirdPartyManagerDictionaryVideo(youTubeThirdPartyManager);
-            YouTubeManager youManager = new YouTubeManager(youTubeThirdPartyManagerDictionaryVideo);
-            youManager.RenderVideoPage(1);
+            YouTubeThirdPartyManager youTubeThirdPartyManager = new YouTubeThirdPartyManager();//Прокси
+            YouTubeThirdPartyManagerDictionaryVideo youTubeThirdPartyManagerDictionaryVideo = new YouTubeThirdPartyManagerDictionaryVideo(youTubeThirdPartyManager);//список видосов
+            YouTubeManager youManager = new YouTubeManager(youTubeThirdPartyManagerDictionaryVideo);//Добавляет информацию о видео
+            youManager.RenderVideoPage();//Обновляет и выводит информацию о видео
             Console.ReadKey();
         }
     }
