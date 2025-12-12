@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bridge
+namespace Bridge.Startups
 {
-    internal class Startups
+    //коннект к базе 
+    public class Startup
     {
+
     }
 }
