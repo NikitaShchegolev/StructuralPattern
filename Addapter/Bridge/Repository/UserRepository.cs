@@ -12,10 +12,30 @@ namespace Bridge.Repository
     public abstract class UserRepository
     {
         protected readonly IUserStorage _userStorage;//Только чтение
-        protected UserRepository(IUserStorage userStorage) { _userStorage = userStorage; } //обращение классу только через конструктор с параметром IUserStorage
-        public abstract User GetUserById();//Абстрактный метод для получения id Пользователя
-        public abstract User CreateUser();//Абстрактный метод для получения для создания пользователя
-        public abstract User UpdateUser();//Абстрактный метод для получения для обновления данных пользователя
-        public abstract User RemoveUser();//Абстрактный метод для получения для удааления пользователя
+        /// <summary>
+        /// обращение классу только через конструктор с параметром IUserStorage
+        /// </summary>
+        /// <param name="userStorage"></param>
+        protected UserRepository(IUserStorage userStorage) { _userStorage = userStorage; }
+        /// <summary>
+        /// /Абстрактный метод для получения id Пользователя
+        /// </summary>
+        /// <returns>/Абстрактный метод для получения id Пользователя</returns>
+        public abstract User GetUserById();
+        /// <summary>
+        /// Абстрактный метод для получения создания пользователя
+        /// </summary>
+        /// <returns>Абстрактный метод для получения создания пользователя</returns>
+        public abstract User CreateUser();
+        /// <summary>
+        /// Абстрактный метод для получения для обновления данных пользователя
+        /// </summary>
+        /// <returns>Абстрактный метод для получения для обновления данных пользователя</returns>
+        public abstract User UpdateUser();
+        /// <summary>
+        /// Абстрактный метод для получения для удааления пользователя
+        /// </summary>
+        /// <returns>Абстрактный метод для получения для удааления пользователя</returns>
+        public abstract User RemoveUser();
     }
 }

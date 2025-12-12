@@ -8,5 +8,6 @@ namespace Bridge.Service
 {
     public class UserService
     {
+
     }
 }
