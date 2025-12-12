@@ -4,16 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Bridge.Interface;
+
 namespace Bridge.Solution
 {
-    public class Radio
+    public class Radio: IDevice
     {
         public bool isEnable;
-        public bool IsEnable() 
-        {
-            return isEnable;
-        }
-        public void Enable() { Console.WriteLine("Radio - Enable"); }
-        public void Disable() { Console.WriteLine("Radio - Disable"); }
+        public bool IsEnabled() {return isEnable;}
+        public void Enabled() { Console.WriteLine("Radio - Enabled"); }
+        public void Disabled() { Console.WriteLine("Radio - Disable"); }
+
     }
 }

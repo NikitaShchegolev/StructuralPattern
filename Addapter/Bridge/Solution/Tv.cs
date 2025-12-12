@@ -4,16 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Bridge.Interface;
+
 namespace Bridge.Solution
 {
-    public class Tv
+    public class Tv: IDevice
     {
-        public bool isEnable;
-        public bool IsEnable()
-        {
-            return isEnable;
-        }
-        public void Enable() { Console.WriteLine("Tv - Enable"); }
-        public void Disable() { Console.WriteLine("Tv - Disable"); }
+        public bool isEnable;        
+        public bool IsEnabled() { return true; }
+        public void Enabled() { Console.WriteLine("Tv - Enabled"); }
+        public void Disabled() { Console.WriteLine("Tv - Disable"); }
     }
 }

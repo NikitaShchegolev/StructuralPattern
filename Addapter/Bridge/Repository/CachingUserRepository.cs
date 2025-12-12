@@ -11,6 +11,10 @@ namespace Bridge.Repository
 {
     public class CachingUserRepository: UserRepository
     {
+        /// <summary>
+        /// Конструктор с договором по использованию класса при его использовании, должно быть реализована логика методов
+        /// </summary>
+        /// <param name="storage"></param>
         public CachingUserRepository(IUserStorage storage) : base(storage) { }
         /// <summary>
         /// Создать пользователя
@@ -19,8 +23,7 @@ namespace Bridge.Repository
         public override User CreateUser()
         {
             //TODO: Доделать
-            User user = new User();
-            return user;
+            return new User() { Name = "Пользователь_1" };
         }
         /// <summary>
         /// Получить Id
@@ -29,8 +32,7 @@ namespace Bridge.Repository
         public override User GetUserById()
         {
             //TODO: Доделать
-            User user = new User();
-            return user;
+            return new User() { Id = Guid.NewGuid() };
         }
         /// <summary>
         /// Удалить пользователя
@@ -39,8 +41,7 @@ namespace Bridge.Repository
         public override User RemoveUser()
         {
             //TODO: Доделать
-            User user = new User();
-            return user;
+            return new User() { DeleteUsers = "Данные пользователя удалены" };
         }
         /// <summary>
         /// Обновить данные пользователя
@@ -48,9 +49,7 @@ namespace Bridge.Repository
         /// <returns>Обновить данные пользователя</returns>
         public override User UpdateUser()
         {
-            //TODO: Доделать
-            User user = new User();
-            return user;
+            return new User() { Updata = "Данные пользователя обновлены" };
         }
     }
 }
