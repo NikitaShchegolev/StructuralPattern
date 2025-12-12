@@ -21,7 +21,6 @@ namespace Decorator.Decorators
         {
             _notyficationService = notyficationService;
         }
-
         /// <summary>
         /// Отправляет уведомление.
         /// </summary>

@@ -16,7 +16,7 @@ namespace Decorator.ExemplesClass
     public class MessageManager
     {
         private MessageService _messageService;
-        private NotyficationOption _notyficationOption;
+        //private NotyficationOption _notyficationOption;
         
         /// <summary>
         /// Инициализирует новый экземпляр класса CardManager.
@@ -25,11 +25,11 @@ namespace Decorator.ExemplesClass
         public MessageManager(NotyficationOption notyficationOption)
         {
             _messageService = new MessageService();
-            _notyficationOption = notyficationOption;
+            //_notyficationOption = notyficationOption;
         }
         
         /// <summary>
-        /// Выпускает карту и отправляет уведомления.
+        /// Перебор типов сообщений
         /// </summary>
         public void Issue()
         {
@@ -60,9 +60,10 @@ namespace Decorator.ExemplesClass
                                 break;
                             case NotificationType.Email:
                                 notyficationService = new EmailNotificationDecorator(notyficationService);
+                                
                                 break;
                             default:
-                                break;
+                                throw new InvalidOperationException("Не удалось выполнить...");                                
                         }
                         break;
                     default:

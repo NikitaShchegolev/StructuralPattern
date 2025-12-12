@@ -9,7 +9,9 @@ namespace Addapter.ExemplesClass
     /// </summary>
     public class CardIssueServiceAdapter : ICardIssueServiceAdapter
     {
-        //Создал поле для доступка к сервису выпуска карт
+        /// <summary>
+        /// Создал поле для доступка к сервису выпуска карт
+        /// </summary>
         private readonly CardIssueService _cardIssueService;
         
         /// <summary>
@@ -20,7 +22,6 @@ namespace Addapter.ExemplesClass
         {
             _cardIssueService = cardIssueService;
         }
-
         /// <summary>
         /// Адаптируемый CardInfo файл
         /// </summary>
@@ -29,11 +30,11 @@ namespace Addapter.ExemplesClass
         public string Issue(CardInfo cardInfo)
         {
             var message = new Message() 
-            { 
-                Content = $"" +
+            {
+                Content = $"Карта:\n" +
                 $"ID карты: {cardInfo.Id}\n" +
                 $"Дата начала: {cardInfo.StarDate}\n" +
-                $"Дата закрытии карты: {cardInfo.ExepirationDate}\n"
+                $"Дата закрытия карты: {cardInfo.ExepirationDate}"
             };
             return _cardIssueService.Issue(message);
         }
