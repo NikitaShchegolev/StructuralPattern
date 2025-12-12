@@ -17,6 +17,6 @@ namespace Decorator.ExemplesClass
         {
             message.Content = "Выпущена карта";
             Console.WriteLine(message.Content);
-        }
+        }        
     }
 }

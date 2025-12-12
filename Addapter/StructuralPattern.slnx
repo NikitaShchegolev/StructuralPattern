@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="Addapter/Addapter.csproj" />
+    <Project Path="Bridge/Bridge.csproj" Id="b37dd4a0-d8e0-46fa-9d63-b7da9a4300be" />
     <Project Path="Decorator/Decorator.csproj" />
     <Project Path="Proxy/Proxy.csproj" Id="60dc037e-8088-45d5-a95e-5707bb264ce5" />
   </Folder>

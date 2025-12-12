@@ -20,8 +20,8 @@ namespace Addapter.ExemplesClass
         public string Issue(CardInfo cardInfo)
         {
             var cardInfoService = new CardIssueService();
-            //класс адаптер
-            ICardIssueServiceAdapter adaptor = new CardIssueServiceAdapter(cardInfoService);
+            
+            ICardIssueServiceAdapter adaptor = new CardIssueServiceAdapter(cardInfoService);//класс адаптер
             adaptor.Issue(cardInfo);
             Console.WriteLine(adaptor.Issue(cardInfo));
             return adaptor.Issue(cardInfo);
