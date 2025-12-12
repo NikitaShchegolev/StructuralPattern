@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bridge.Repository.Interface
+namespace Bridge.Service
 {
-    internal interface IUserStorage
+    public class UserService
     {
     }
 }

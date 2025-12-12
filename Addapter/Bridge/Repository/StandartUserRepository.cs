@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Bridge.Repository
 {
-    internal class StandartUserRepository
+    public class StandartUserRepository
     {
     }
 }
