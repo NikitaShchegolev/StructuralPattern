@@ -10,9 +10,20 @@ namespace Bridge.Solution
 {
     public class Tv: IDevice
     {
-        public bool isEnable;        
-        public bool IsEnabled() { return true; }
-        public void Enabled() { Console.WriteLine("Tv - Enabled"); }
-        public void Disabled() { Console.WriteLine("Tv - Disable"); }
+        private bool isEnable;
+        
+        public bool IsEnabled() { return isEnable; }
+        
+        public void Enabled() 
+        { 
+            isEnable = true;
+            Console.WriteLine("TV is on"); 
+        }
+        
+        public void Disabled() 
+        { 
+            isEnable = false;
+            Console.WriteLine("TV is off"); 
+        }
     }
 }

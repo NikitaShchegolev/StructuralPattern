@@ -10,6 +10,8 @@ namespace Bridge
     {
         static async Task Main(string[] args)
         {
+            Console.WriteLine("=== ЗАПУСК ПРОГРАММЫ ===\n");
+            
             #region Устройства
             var device = new Tv();
             var remote = new Remote(device);
@@ -19,83 +21,78 @@ namespace Bridge
             remote.TogglePower();
             #endregion
 
-            // Создаем строку подключения к MongoDB
+            Console.WriteLine("\n=== ИНИЦИАЛИЗАЦИЯ ПОДКЛЮЧЕНИЙ ===\n");
+            
             string mongoConnectionString = "mongodb://admin:xxx711717XXX@62.60.156.138:32017/?authSource=admin&directConnection=true";
             string mongoDatabaseName = "space_counter";
             string mongoCollectionName = "CreateUsers";
 
-            IMongoDBService mongoDBService = new MongoUserStorage(mongoConnectionString, mongoDatabaseName, mongoCollectionName);
-            ISpaceCounterService spaceCounterService = new SpaceCounterService( mongoDBService);
-
-
-            // Подсчет пробелов во всех файлах которые содержаться в папке TextFile
-            await spaceCounterService.CountSpacesInRemoteFolder("TextFile");
-
+            Console.WriteLine("Создание MongoUserStorage...");
+            IUserStorage mongoUserStorage = new MongoUserStorage(mongoConnectionString, mongoDatabaseName, mongoCollectionName);
+            Console.WriteLine("MongoUserStorage создан\n");
 
             string postgresHost = "62.60.156.138";
             string postgresPortStr = "30001";
             string postgresDatabase = "postgres";
             string postgresUser = "postgres";
             string postgresPassword = "xxx711717";
-
-            // Создаем строку подключения к PostgreSQL            
             string postgresConnectionString = $"Host={postgresHost};Port={postgresPortStr};Database={postgresDatabase};Username={postgresUser};Password={postgresPassword};";
-            PostgresUserStorage postgresUserStorage = new PostgresUserStorage(postgresConnectionString);
-            IPostgreSQLService postgreSQLService = new PostgreSQLService(postgresConnectionString);
 
+            Console.WriteLine("Создание PostgresUserStorage...");
+            IUserStorage postgresUserStorage = new PostgresUserStorage(postgresConnectionString);
+            Console.WriteLine("PostgresUserStorage создан\n");
 
-            Console.ReadKey();
-        }
-    }
-}
-
-
-
-public class SpaceCounterService : ISpaceCounterService
-{
-
-
-    private IMongoDBService _collection;
-
-    /// <summary>
-    /// Конструктор сервиса подсчета пробелов
-    /// </summary>
-    /// <param name="postgreSQLService">Сервис PostgreSQL (опционально)</param>
-
-
-    public SpaceCounterService(IMongoDBService mongoDBService)
-    {
-        this._collection = mongoDBService;
-    }
-
-    public Task<int[]> CountSpacesInFiles(string[] filePaths)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task CountSpacesInFolder(string folderPath)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task CountSpacesInRemoteFolder(string remoteDirectory)
-    {
-        
-
-            // Создаем результат для сохранения в PostgreSQL
-            var spaceCountResult = new MongoSpaceCountResult
+            #region Тестирование работы с пользователями в MongoDB
+            Console.WriteLine("\n=== РАБОТА С ПОЛЬЗОВАТЕЛЯМИ В MONGODB ===\n");
+            
+            var mongoUser1 = new User
             {
-                FilePath = remoteDirectory,
+                Id = Guid.NewGuid(),
+                Name = "Иван Иванов (MongoDB)",
+                Updata = "Обновлен",
+                DeleteUsers = "Нет",
                 CreatedAt = DateTime.UtcNow
             };
+            
+            Console.WriteLine($"Создан объект mongoUser1: {mongoUser1.Name}, Id: {mongoUser1.Id}");
+            mongoUserStorage.SaveUser(mongoUser1);
+            
+            Console.WriteLine($"\nПопытка получить пользователя из MongoDB...");
+            var foundMongoUser = mongoUserStorage.GetUser(mongoUser1.Id);
+            Console.WriteLine($"Результат: {foundMongoUser.Name}\n");
+            #endregion
 
-            var mongoResult = new MongoSpaceCountResult
+            #region Тестирование работы с пользователями в PostgreSQL
+            Console.WriteLine("\n=== РАБОТА С ПОЛЬЗОВАТЕЛЯМИ В POSTGRESQL ===\n");
+            
+            var postgresUser1 = new User
             {
-                ProcessingTimeMs = spaceCountResult.ProcessingTimeMs,
-                CreatedAt = spaceCountResult.CreatedAt
+                Id = Guid.NewGuid(),
+                Name = "Алексей Сидоров (PostgreSQL)",
+                Updata = "Создан",
+                DeleteUsers = "Нет",
+                CreatedAt = DateTime.UtcNow
             };
-            await _collection.SaveSpaceCountResultAsync(mongoResult);
-            Console.WriteLine("Результат успешно сохранен в MongoDB");
+            
+            Console.WriteLine($"Создан объект postgresUser1: {postgresUser1.Name}, Id: {postgresUser1.Id}");
+            postgresUserStorage.SaveUser(postgresUser1);
+            
+            Console.WriteLine($"\nПопытка получить пользователя из PostgreSQL...");
+            var foundPostgresUser = postgresUserStorage.GetUser(postgresUser1.Id);
+            Console.WriteLine($"Результат: {foundPostgresUser.Name}\n");
+            
+            Console.WriteLine("\n=== ОБНОВЛЕНИЕ ПОЛЬЗОВАТЕЛЯ В POSTGRESQL ===\n");
+            postgresUser1.Name = "Алексей Александрович Сидоров (PostgreSQL)";
+            postgresUser1.Updata = "Обновлен";
+            postgresUserStorage.SaveUser(postgresUser1);
+            
+            Console.WriteLine($"\nПроверка обновления...");
+            var updatedUser = postgresUserStorage.GetUser(postgresUser1.Id);
+            Console.WriteLine($"Результат после обновления: {updatedUser.Name}\n");
+            #endregion
 
+            Console.WriteLine("\n=== ПРОГРАММА ЗАВЕРШЕНА ===");
+            Console.ReadKey();
+        }
     }
 }
