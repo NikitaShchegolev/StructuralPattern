@@ -127,7 +127,7 @@ namespace Bridge
             #endregion
 
             #region ОБНОВЛЕНИЕ (UPDATE) - Изменение данных существующих пользователей
-            Guid targetGuid = Guid.Parse("e34c12a4-f552-4471-b74d-a5dc074f8987");
+            Guid targetGuid = Guid.Parse("72454706-dabd-44b2-b1ee-d38fe6c4a3e7");
             
             User userToUpdate = null;
             
@@ -156,20 +156,27 @@ namespace Bridge
             }
             #endregion
 
-            #region Демонстрация паттерна Bridge
-            IUserStorage storage;
+            #region УДАЛЕНИЕ (DELETE) - Удаление пользователя по GUID
+            Guid deleteTargetGuid = Guid.Parse("d4a8f2b4-c775-418b-b24a-d96567b2b8a9");
             
-            storage = mongoStorage;
-            var mongoUsers = storage.FindUsers(u => true);
+            User userToDelete = null;
             
-            storage = postgresStorage;
-            var postgresUsers = storage.FindUsers(u => true);
+            try
+            {
+                userToDelete = mongoStorage.GetUser(deleteTargetGuid);
+            }
+            catch (Exception ex)
+            {
+                userToDelete = null;
+            }
+            
+            if (userToDelete != null)
+            {
+                mongoStorage.DeleteUser(deleteTargetGuid);
+                postgresStorage.DeleteUser(deleteTargetGuid);
+            }
             #endregion
 
-            #region Итоговая статистика
-            //var allMongoUsers = mongoStorage.FindUsers(u => true);
-            //var allPostgresUsers = postgresStorage.FindUsers(u => true);
-            #endregion
 
             Console.ReadKey();
         }
