@@ -23,12 +23,11 @@ namespace Bridge
             
             #region Конфигурация подключений
             string mongoConnectionString = "mongodb://admin:xxx711717XXX@62.60.156.138:32017/?authSource=admin&directConnection=true";
-            string mongoDatabaseName = "space_counter";
-            string mongoCollectionName = "CreateUsers";
+            string mongoDatabaseName = "Users";
 
             string postgresConnectionString = "Host=62.60.156.138;Port=30001;Database=postgres;Username=postgres;Password=xxx711717;";
             
-            IUserStorage mongoStorage = new MongoUserStorage(mongoConnectionString, mongoDatabaseName, mongoCollectionName);
+            IUserStorage mongoStorage = new MongoUserStorage(mongoConnectionString, mongoDatabaseName);
             IUserStorage postgresStorage = new PostgresUserStorage(postgresConnectionString);
             
             Console.WriteLine("Подключения к MongoDB и PostgreSQL установлены\n");
@@ -111,11 +110,15 @@ namespace Bridge
             #region ОБНОВЛЕНИЕ (UPDATE)
             Guid targetGuid = Guid.Parse("72454706-dabd-44b2-b1ee-d38fe6c4a3e7");
             
-            var userToUpdate = mongoStorage.GetUser(targetGuid);
+            Console.WriteLine($"\nПопытка обновления пользователя с GUID: {targetGuid}");
+            
+            // Проверяем существование пользователя В СПИСКЕ всех пользователей
+            var allUsers = mongoStorage.FindUsers(u => true);
+            var userToUpdate = allUsers.FirstOrDefault(u => u.Id == targetGuid);
             
             if (userToUpdate != null)
             {
-                Console.WriteLine($"\nОБНОВЛЕНИЕ пользователя:");
+                Console.WriteLine($"ОБНОВЛЕНИЕ пользователя:");
                 Console.WriteLine($"  До: {userToUpdate.Name} {userToUpdate.LastName}");
                 
                 userToUpdate.Name = $"{userToUpdate.Name} (Обновлено)";
@@ -128,16 +131,24 @@ namespace Bridge
                 Console.WriteLine($"  После: {userToUpdate.Name} {userToUpdate.LastName}");
                 Console.WriteLine($"  GUID: {userToUpdate.Id} (не изменен)");
             }
+            else
+            {
+                Console.WriteLine($"Пользователь с GUID {targetGuid} НЕ НАЙДЕН. Обновление пропущено.");
+            }
             #endregion
 
             #region УДАЛЕНИЕ (DELETE)
             Guid deleteTargetGuid = Guid.Parse("d4a8f2b4-c775-418b-b24a-d96567b2b8a9");
             
-            var userToDelete = mongoStorage.GetUser(deleteTargetGuid);
+            Console.WriteLine($"\nПопытка удаления пользователя с GUID: {deleteTargetGuid}");
+            
+            // Проверяем существование пользователя В СПИСКЕ всех пользователей
+            var allUsersForDelete = mongoStorage.FindUsers(u => true);
+            var userToDelete = allUsersForDelete.FirstOrDefault(u => u.Id == deleteTargetGuid);
             
             if (userToDelete != null)
             {
-                Console.WriteLine($"\nУДАЛЕНИЕ пользователя:");
+                Console.WriteLine($"УДАЛЕНИЕ пользователя:");
                 Console.WriteLine($"  Id: {userToDelete.Id}");
                 Console.WriteLine($"  Name: {userToDelete.Name}");
                 Console.WriteLine($"  LastName: {userToDelete.LastName}");
@@ -147,8 +158,13 @@ namespace Bridge
                 
                 Console.WriteLine($"  Удален из обеих БД");
             }
+            else
+            {
+                Console.WriteLine($"Пользователь с GUID {deleteTargetGuid} НЕ НАЙДЕН. Удаление пропущено.");
+            }
             #endregion
 
+            Console.WriteLine("\nПрограмма завершена");
             Console.ReadKey();
         }
     }
