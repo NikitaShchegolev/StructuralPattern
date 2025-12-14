@@ -6,33 +6,32 @@ using System.Threading.Tasks;
 
 using Bridge.Interface;
 using Bridge.Model;
-using Bridge.Services;
 
 using Npgsql;
 
 namespace Bridge.Storages
 {
+    /// <summary>
+    /// Реализация хранилища пользователей для PostgreSQL
+    /// </summary>
     public class PostgresUserStorage: IUserStorage
     {
         private readonly string _connectionString;
-        private readonly IPostgreSQLService _postgreSQLService;
         
         public PostgresUserStorage(string connectionString)
         {
             _connectionString = connectionString;
-            _postgreSQLService = new PostgreSQLService(connectionString);
             InitializeDatabaseAsync().Wait();
         }
         
         /// <summary>
-        /// Инициализация таблиц в базе данных PostgreSQL
+        /// Инициализация таблицы users в базе данных PostgreSQL
         /// </summary>
         private async Task InitializeDatabaseAsync()
         {
             try
             {
                 Console.WriteLine("[PostgreSQL] Начало инициализации базы данных...");
-                Console.WriteLine($"[PostgreSQL] Строка подключения: {_connectionString.Replace(_connectionString.Split("Password=")[1].Split(";")[0], "***")}");
                 
                 using var connection = new NpgsqlConnection(_connectionString);
                 await connection.OpenAsync();
@@ -47,30 +46,12 @@ namespace Bridge.Storages
                         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
                     )";
 
-                var createSpaceCountResultsTable = @"
-                    CREATE TABLE IF NOT EXISTS space_count_results (
-                        id UUID PRIMARY KEY,
-                        file_path VARCHAR(500) NOT NULL,
-                        space_count INTEGER NOT NULL,
-                        processing_time_ms BIGINT NOT NULL,
-                        created_at TIMESTAMP NOT NULL
-                    )";
-
                 Console.WriteLine("[PostgreSQL] Создание таблицы users...");
                 using (var command = new NpgsqlCommand(createUsersTable, connection))
                 {
                     await command.ExecuteNonQueryAsync();
                 }
-                Console.WriteLine("[PostgreSQL] Таблица users создана или уже существует");
-
-                Console.WriteLine("[PostgreSQL] Создание таблицы space_count_results...");
-                using (var command = new NpgsqlCommand(createSpaceCountResultsTable, connection))
-                {
-                    await command.ExecuteNonQueryAsync();
-                }
-                Console.WriteLine("[PostgreSQL] Таблица space_count_results создана или уже существует");
-
-                Console.WriteLine("[PostgreSQL] ✅ Таблицы PostgreSQL инициализированы успешно");
+                Console.WriteLine("[PostgreSQL] ✅ Таблица users создана или уже существует");
             }
             catch (Exception ex)
             {
@@ -110,10 +91,10 @@ namespace Bridge.Storages
         }
         
         /// <summary>
-        /// Получить пользователя по Guid
+        /// Получить пользователя по GUID
         /// </summary>
-        /// <param name="userId">Id пользователя</param>
-        /// <returns>Пользователь или null</returns>
+        /// <param name="userId">GUID пользователя</param>
+        /// <returns>Пользователь</returns>
         public User GetUser(Guid userId)
         {
             try
@@ -122,7 +103,6 @@ namespace Bridge.Storages
                 
                 using var connection = new NpgsqlConnection(_connectionString);
                 connection.Open();
-                Console.WriteLine("[PostgreSQL] Подключение к базе данных установлено");
 
                 using var command = new NpgsqlCommand(
                     "SELECT id, name, updata, delete_users, created_at FROM users WHERE id = @id", 
@@ -140,17 +120,16 @@ namespace Bridge.Storages
                         DeleteUsers = reader.IsDBNull(3) ? string.Empty : reader.GetString(3),
                         CreatedAt = reader.GetDateTime(4)
                     };
-                    Console.WriteLine($"[PostgreSQL] Пользователь найден в PostgreSQL: {user.Name} (Id: {userId})");
+                    Console.WriteLine($"[PostgreSQL] Пользователь найден: {user.Name} (Id: {userId})");
                     return user;
                 }
 
-                Console.WriteLine($"[PostgreSQL] Пользователь с Id {userId} не найден в PostgreSQL");
+                Console.WriteLine($"[PostgreSQL] Пользователь с Id {userId} не найден");
                 return new User() { Id = userId, Name = "Пользователь не найден" };
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"[PostgreSQL] ОШИБКА при получении пользователя: {ex.Message}");
-                Console.WriteLine($"[PostgreSQL] Детали ошибки: {ex}");
                 throw;
             }
         }
@@ -163,20 +142,27 @@ namespace Bridge.Storages
         {
             try
             {
-                Console.WriteLine($"[PostgreSQL] Попытка сохранения пользователя: {user.Name} (Id: {user.Id})");
+                Console.WriteLine($"\n[PostgreSQL] ========================================");
+                Console.WriteLine($"[PostgreSQL] Попытка сохранения пользователя:");
+                Console.WriteLine($"[PostgreSQL]   Name: '{user.Name}'");
+                Console.WriteLine($"[PostgreSQL]   Updata: '{user.Updata}'");
+                Console.WriteLine($"[PostgreSQL]   DeleteUsers: '{user.DeleteUsers}'");
+                Console.WriteLine($"[PostgreSQL]   GUID: {user.Id}");
                 
                 using var connection = new NpgsqlConnection(_connectionString);
                 connection.Open();
-                Console.WriteLine("[PostgreSQL] Подключение к базе данных установлена");
+                Console.WriteLine("[PostgreSQL] ✓ Подключение к базе данных установлено");
 
-                var checkCommand = new NpgsqlCommand("SELECT COUNT(*) FROM users WHERE id = @id", connection);
-                checkCommand.Parameters.AddWithValue("@id", user.Id);
-                var exists = Convert.ToInt32(checkCommand.ExecuteScalar()) > 0;
+                // Проверяем, существует ли пользователь с таким GUID
+                var checkIdCommand = new NpgsqlCommand("SELECT COUNT(*) FROM users WHERE id = @id", connection);
+                checkIdCommand.Parameters.AddWithValue("@id", user.Id);
+                var existsById = Convert.ToInt32(checkIdCommand.ExecuteScalar()) > 0;
                 
-                Console.WriteLine($"[PostgreSQL] Пользователь существует: {exists}");
-
-                if (exists)
+                if (existsById)
                 {
+                    // Пользователь с таким GUID существует - обновляем
+                    Console.WriteLine($"[PostgreSQL] ✓ Найден пользователь с таким же GUID");
+                    
                     var updateCommand = new NpgsqlCommand(
                         @"UPDATE users 
                           SET name = @name, updata = @updata, delete_users = @delete_users, created_at = @created_at 
@@ -190,104 +176,125 @@ namespace Bridge.Storages
                     updateCommand.Parameters.AddWithValue("@created_at", user.CreatedAt);
 
                     var rowsAffected = updateCommand.ExecuteNonQuery();
-                    Console.WriteLine($"[PostgreSQL] Пользователь {user.Name} (Id: {user.Id}) обновлен в PostgreSQL. Затронуто строк: {rowsAffected}");
+                    Console.WriteLine($"[PostgreSQL] ✅ Пользователь ОБНОВЛЕН. Затронуто строк: {rowsAffected}");
+                    Console.WriteLine($"[PostgreSQL] ========================================\n");
+                    return;
                 }
-                else
-                {
-                    var insertCommand = new NpgsqlCommand(
-                        @"INSERT INTO users (id, name, updata, delete_users, created_at) 
-                          VALUES (@id, @name, @updata, @delete_users, @created_at)",
-                        connection);
-                    
-                    insertCommand.Parameters.AddWithValue("@id", user.Id);
-                    insertCommand.Parameters.AddWithValue("@name", user.Name);
-                    insertCommand.Parameters.AddWithValue("@updata", user.Updata ?? string.Empty);
-                    insertCommand.Parameters.AddWithValue("@delete_users", user.DeleteUsers ?? string.Empty);
-                    insertCommand.Parameters.AddWithValue("@created_at", user.CreatedAt);
 
-                    var rowsAffected = insertCommand.ExecuteNonQuery();
-                    Console.WriteLine($"[PostgreSQL] Пользователь {user.Name} (Id: {user.Id}) сохранен в PostgreSQL. Затронуто строк: {rowsAffected}");
+                Console.WriteLine($"[PostgreSQL] ✗ Пользователь с GUID {user.Id} не найден");
+                Console.WriteLine($"[PostgreSQL] Проверяем наличие дубликатов по данным...");
+                
+                // Проверяем, есть ли пользователь с ТОЧНО такими же данными
+                var checkDuplicateCommand = new NpgsqlCommand(
+                    @"SELECT id, name, updata, delete_users FROM users 
+                      WHERE name = @name 
+                        AND updata = @updata 
+                        AND delete_users = @delete_users",
+                    connection);
+                
+                checkDuplicateCommand.Parameters.AddWithValue("@name", user.Name);
+                checkDuplicateCommand.Parameters.AddWithValue("@updata", user.Updata ?? string.Empty);
+                checkDuplicateCommand.Parameters.AddWithValue("@delete_users", user.DeleteUsers ?? string.Empty);
+                
+                Console.WriteLine($"[PostgreSQL] Поиск по критериям:");
+                Console.WriteLine($"[PostgreSQL]   Name = '{user.Name}'");
+                Console.WriteLine($"[PostgreSQL]   Updata = '{user.Updata ?? string.Empty}'");
+                Console.WriteLine($"[PostgreSQL]   DeleteUsers = '{user.DeleteUsers ?? string.Empty}'");
+                
+                using var reader = checkDuplicateCommand.ExecuteReader();
+                if (reader.Read())
+                {
+                    // Найден пользователь с идентичными данными - НЕ СОХРАНЯЕМ
+                    var existingGuid = reader.GetGuid(0);
+                    var existingName = reader.GetString(1);
+                    var existingUpdata = reader.GetString(2);
+                    var existingDeleteUsers = reader.GetString(3);
+                    
+                    Console.WriteLine($"[PostgreSQL] ✓ Найден дубликат!");
+                    Console.WriteLine($"[PostgreSQL]   Существующий GUID: {existingGuid}");
+                    Console.WriteLine($"[PostgreSQL]   Существующие данные:");
+                    Console.WriteLine($"[PostgreSQL]     Name: '{existingName}'");
+                    Console.WriteLine($"[PostgreSQL]     Updata: '{existingUpdata}'");
+                    Console.WriteLine($"[PostgreSQL]     DeleteUsers: '{existingDeleteUsers}'");
+                    Console.WriteLine($"[PostgreSQL]   Попытка создать с GUID: {user.Id}");
+                    Console.WriteLine($"[PostgreSQL] ⚠️ ДУБЛИКАТ НЕ СОХРАНЕН!");
+                    Console.WriteLine($"[PostgreSQL] Используйте существующий GUID: {existingGuid}");
+                    Console.WriteLine($"[PostgreSQL] ========================================\n");
+                    reader.Close();
+                    return; // НЕ сохраняем дубликат
                 }
+                reader.Close();
+
+                Console.WriteLine($"[PostgreSQL] ✗ Дубликат не найден");
+                Console.WriteLine($"[PostgreSQL] Это новый уникальный пользователь");
+
+                // Это новый уникальный пользователь - сохраняем
+                var insertCommand = new NpgsqlCommand(
+                    @"INSERT INTO users (id, name, updata, delete_users, created_at) 
+                      VALUES (@id, @name, @updata, @delete_users, @created_at)",
+                    connection);
+                
+                insertCommand.Parameters.AddWithValue("@id", user.Id);
+                insertCommand.Parameters.AddWithValue("@name", user.Name);
+                insertCommand.Parameters.AddWithValue("@updata", user.Updata ?? string.Empty);
+                insertCommand.Parameters.AddWithValue("@delete_users", user.DeleteUsers ?? string.Empty);
+                insertCommand.Parameters.AddWithValue("@created_at", user.CreatedAt);
+
+                var rowsAffected2 = insertCommand.ExecuteNonQuery();
+                Console.WriteLine($"[PostgreSQL] ✅ Пользователь сохранен как НОВЫЙ. Затронуто строк: {rowsAffected2}");
+                Console.WriteLine($"[PostgreSQL]   Name: '{user.Name}'");
+                Console.WriteLine($"[PostgreSQL]   GUID: {user.Id}");
+                Console.WriteLine($"[PostgreSQL] ========================================\n");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[PostgreSQL] ОШИБКА при сохранении пользователя: {ex.Message}");
+                Console.WriteLine($"[PostgreSQL] ❌ ОШИБКА при сохранении пользователя: {ex.Message}");
                 Console.WriteLine($"[PostgreSQL] Детали ошибки: {ex}");
+                Console.WriteLine($"[PostgreSQL] ========================================\n");
                 throw;
             }
         }
-        
+
         /// <summary>
-        /// Удалить пользователя из PostgreSQL
+        /// Удалить пользователя из PostgreSQL (DELETE)
         /// </summary>
-        /// <param name="userId">Id пользователя</param>
-        public void DeleteUser(string userId)
+        /// <param name="userId">GUID пользователя</param>
+        public void DeleteUser(Guid userId)
         {
-            if (Guid.TryParse(userId, out Guid guidId))
+            try
             {
+                Console.WriteLine($"\n[PostgreSQL] ========================================");
+                Console.WriteLine($"[PostgreSQL] Попытка удаления пользователя:");
+                Console.WriteLine($"[PostgreSQL]   GUID: {userId}");
+                
                 using var connection = new NpgsqlConnection(_connectionString);
                 connection.Open();
 
                 using var command = new NpgsqlCommand("DELETE FROM users WHERE id = @id", connection);
-                command.Parameters.AddWithValue("@id", guidId);
+                command.Parameters.AddWithValue("@id", userId);
 
                 var rowsAffected = command.ExecuteNonQuery();
+                
                 if (rowsAffected > 0)
                 {
-                    Console.WriteLine($"Пользователь {userId} удален из PostgreSQL");
+                    Console.WriteLine($"[PostgreSQL] ✅ Пользователь с Id {userId} УДАЛЕН из PostgreSQL");
+                    Console.WriteLine($"[PostgreSQL]   Удалено строк: {rowsAffected}");
                 }
                 else
                 {
-                    Console.WriteLine($"Пользователь {userId} не найден в PostgreSQL");
+                    Console.WriteLine($"[PostgreSQL] ⚠️ Пользователь с Id {userId} НЕ НАЙДЕН в PostgreSQL");
+                    Console.WriteLine($"[PostgreSQL]   Удалено строк: 0");
                 }
+                
+                Console.WriteLine($"[PostgreSQL] ========================================\n");
             }
-            else
+            catch (Exception ex)
             {
-                Console.WriteLine($"Неверный формат Id пользователя: {userId}");
+                Console.WriteLine($"[PostgreSQL] ❌ ОШИБКА при удалении пользователя: {ex.Message}");
+                Console.WriteLine($"[PostgreSQL] Детали ошибки: {ex}");
+                Console.WriteLine($"[PostgreSQL] ========================================\n");
+                throw;
             }
-        }
-
-        /// <summary>
-        /// Сохраняет результат подсчета пробелов используя PostgreSQLService
-        /// </summary>
-        /// <param name="result">Результат подсчета пробелов</param>
-        /// <returns>Задача</returns>
-        public async Task SaveSpaceCountResultAsync(MongoSpaceCountResult result)
-        {
-            await _postgreSQLService.SaveSpaceCountResultAsync(result);
-            Console.WriteLine($"Результат подсчета пробелов для файла '{result.FilePath}' сохранен в PostgreSQL через PostgreSQLService");
-        }
-
-        /// <summary>
-        /// Сохраняет несколько результатов используя PostgreSQLService
-        /// </summary>
-        /// <param name="results">Массив результатов подсчета пробелов</param>
-        /// <returns>Задача</returns>
-        public async Task SaveSpaceCountResultsAsync(MongoSpaceCountResult[] results)
-        {
-            await _postgreSQLService.SaveSpaceCountResultsAsync(results);
-            Console.WriteLine($"Сохранено {results.Length} результатов подсчета пробелов в PostgreSQL через PostgreSQLService");
-        }
-
-        /// <summary>
-        /// Извлекает содержимое файла используя PostgreSQLService
-        /// </summary>
-        /// <param name="filePath">Путь к файлу</param>
-        /// <returns>Содержимое файла или null, если файл не найден</returns>
-        public async Task<string?> GetFileContentAsync(string filePath)
-        {
-            return await _postgreSQLService.GetFileContentAsync(filePath);
-        }
-
-        /// <summary>
-        /// Получает все результаты используя PostgreSQLService
-        /// </summary>
-        /// <returns>Список результатов подсчета пробелов</returns>
-        public async Task<List<MongoSpaceCountResult>> GetAllSpaceCountResultsAsync()
-        {
-            var results = await _postgreSQLService.GetAllSpaceCountResultsAsync();
-            Console.WriteLine($"Получено {results.Count} результатов подсчета пробелов из PostgreSQL через PostgreSQLService");
-            return results;
         }
     }
 }
