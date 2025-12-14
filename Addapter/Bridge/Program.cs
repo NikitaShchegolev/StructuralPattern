@@ -1,6 +1,7 @@
-п»їusing Bridge.Interface;
+using Bridge.Interface;
 using Bridge.Model;
 using Bridge.Repository;
+using Bridge.Services;
 using Bridge.Solution;
 using Bridge.Storages;
 
@@ -10,8 +11,17 @@ namespace Bridge
     {
         static async Task Main(string[] args)
         {
-            #region РљРѕРЅС„РёРіСѓСЂР°С†РёСЏ РїРѕРґРєР»СЋС‡РµРЅРёР№
+            #region Устройства - Демонстрация паттерна Bridge
+            var device = new Tv();
+            var remote = new Remote(device);
+            remote.TogglePower();
             
+            var device2 = new Radio();
+            remote = new Remote(device2);
+            remote.TogglePower();
+            #endregion
+            
+            #region Конфигурация подключений
             string mongoConnectionString = "mongodb://admin:xxx711717XXX@62.60.156.138:32017/?authSource=admin&directConnection=true";
             string mongoDatabaseName = "space_counter";
             string mongoCollectionName = "CreateUsers";
@@ -21,162 +31,123 @@ namespace Bridge
             IUserStorage mongoStorage = new MongoUserStorage(mongoConnectionString, mongoDatabaseName, mongoCollectionName);
             IUserStorage postgresStorage = new PostgresUserStorage(postgresConnectionString);
             
-            Console.WriteLine("вњ… РџРѕРґРєР»СЋС‡РµРЅРёСЏ Рє MongoDB Рё PostgreSQL СѓСЃС‚Р°РЅРѕРІР»РµРЅС‹\n");
+            Console.WriteLine("Подключения к MongoDB и PostgreSQL установлены\n");
             #endregion
 
-            #region РЈСЃС‚СЂРѕР№СЃС‚РІР° - Р”РµРјРѕРЅСЃС‚СЂР°С†РёСЏ РїР°С‚С‚РµСЂРЅР° Bridge
-            var device = new Tv();
-            var remote = new Remote(device);
-            remote.TogglePower();
-            
-            var device2 = new Radio();
-            remote = new Remote(device2);
-            remote.TogglePower();
+            #region Проверка всех существующих пользователей
+            UserValidator.ValidateAllUsers(mongoStorage, postgresStorage);
             #endregion
 
-            #region РџСЂРѕРІРµСЂРєР° СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёС… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№
-            var existingUser1Mongo = mongoStorage.FindUsers(u => 
-                u.Name.Contains("РРІР°РЅ") && u.Name.Contains("РРІР°РЅРѕРІ")
-            ).FirstOrDefault();
+            #region СОЗДАНИЕ НОВЫХ ПОЛЬЗОВАТЕЛЕЙ
+            var allExistingUsers = mongoStorage.FindUsers(u => true);
             
-            var existingUser2Mongo = mongoStorage.FindUsers(u => 
-                u.Name.Contains("РњР°СЂРёСЏ") && u.Name.Contains("РџРµС‚СЂРѕРІР°")
-            ).FirstOrDefault();
+            var existingPetrov = allExistingUsers.FirstOrDefault(u => 
+                u.Name == "Петр" && u.LastName == "Петров"
+            );
             
-            var existingUser3Mongo = mongoStorage.FindUsers(u => 
-                u.Name.Contains("РџРµС‚СЂ") && u.Name.Contains("РџРµС‚СЂРѕРІ")
-            ).FirstOrDefault();
+            var existingSidorova = allExistingUsers.FirstOrDefault(u => 
+                u.Name == "Анна" && u.LastName == "Сидорова"
+            );
             
-            var existingUser4Mongo = mongoStorage.FindUsers(u => 
-                u.Name.Contains("РђРЅРЅР°") && u.Name.Contains("РЎРёРґРѕСЂРѕРІР°")
-            ).FirstOrDefault();
-            #endregion
-
-            #region РЎРћР—Р”РђРќРР• РќРћР’Р«РҐ РџРћР›Р¬Р—РћР’РђРўР•Р›Р•Р™ 3 Рё 4
             User user3;
-            if (existingUser3Mongo != null)
+            if (existingPetrov != null)
             {
-                user3 = existingUser3Mongo;
+                user3 = existingPetrov;
+                Console.WriteLine($"Используется существующий пользователь: {user3.Name} {user3.LastName}");
             }
             else
             {
                 user3 = new User
                 {
                     Id = Guid.NewGuid(),
-                    Name = "РџРµС‚СЂ РџРµС‚СЂРѕРІ",
-                    Updata = "РЎРѕР·РґР°РЅ",
-                    DeleteUsers = "РќРµС‚",
+                    Name = "Петр",
+                    LastName = "Петров",
+                    Updata = "Создан",
+                    DeleteUsers = "Нет",
                     CreatedAt = DateTime.UtcNow
                 };
                 
                 mongoStorage.SaveUser(user3);
                 postgresStorage.SaveUser(user3);
+                Console.WriteLine($"Создан пользователь: {user3.Name} {user3.LastName} (GUID: {user3.Id})");
             }
             
             User user4;
-            if (existingUser4Mongo != null)
+            if (existingSidorova != null)
             {
-                user4 = existingUser4Mongo;
+                user4 = existingSidorova;
+                Console.WriteLine($"Используется существующий пользователь: {user4.Name} {user4.LastName}");
             }
             else
             {
                 user4 = new User
                 {
                     Id = Guid.NewGuid(),
-                    Name = "РђРЅРЅР° РЎРёРґРѕСЂРѕРІР°",
-                    Updata = "РЎРѕР·РґР°РЅР°",
-                    DeleteUsers = "РќРµС‚",
+                    Name = "Анна",
+                    LastName = "Сидорова",
+                    Updata = "Создана",
+                    DeleteUsers = "Нет",
                     CreatedAt = DateTime.UtcNow
                 };
                 
                 mongoStorage.SaveUser(user4);
                 postgresStorage.SaveUser(user4);
+                Console.WriteLine($"Создан пользователь: {user4.Name} {user4.LastName} (GUID: {user4.Id})");
             }
             #endregion
 
-            #region РџРћР›РЈР§Р•РќРР• РЎРЈР©Р•РЎРўР’РЈР®Р©РРҐ РџРћР›Р¬Р—РћР’РђРўР•Р›Р•Р™ Р”Р›РЇ РћР‘РќРћР’Р›Р•РќРРЇ
-            User user1 = existingUser1Mongo;
-            User user2 = existingUser2Mongo;
-            #endregion
-
-            #region Р§РўР•РќРР• (READ) - РџСЂРѕРІРµСЂРєР° СЃРѕС…СЂР°РЅРµРЅРёСЏ РЅРѕРІС‹С… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№
+            #region ЧТЕНИЕ (READ)
+            Console.WriteLine("\nЧТЕНИЕ новых пользователей:");
+            
             var foundUser3InMongo = mongoStorage.GetUser(user3.Id);
             var foundUser3InPostgres = postgresStorage.GetUser(user3.Id);
+            UserValidator.ValidateUser(foundUser3InMongo, foundUser3InPostgres, "Пользователь 3");
             
             var foundUser4InMongo = mongoStorage.GetUser(user4.Id);
             var foundUser4InPostgres = postgresStorage.GetUser(user4.Id);
-            
-            bool user3Match = (foundUser3InMongo.Id == foundUser3InPostgres.Id && 
-                              foundUser3InMongo.Name == foundUser3InPostgres.Name);
-            bool user4Match = (foundUser4InMongo.Id == foundUser4InPostgres.Id && 
-                              foundUser4InMongo.Name == foundUser4InPostgres.Name);
-            
-            if (user1 != null && user2 != null)
-            {
-                var foundUser1InMongo = mongoStorage.GetUser(user1.Id);
-                var foundUser1InPostgres = postgresStorage.GetUser(user1.Id);
-                
-                var foundUser2InMongo = mongoStorage.GetUser(user2.Id);
-                var foundUser2InPostgres = postgresStorage.GetUser(user2.Id);
-                
-                bool user1Match = (foundUser1InMongo.Id == foundUser1InPostgres.Id && 
-                                  foundUser1InMongo.Name == foundUser1InPostgres.Name);
-                bool user2Match = (foundUser2InMongo.Id == foundUser2InPostgres.Id && 
-                                  foundUser2InMongo.Name == foundUser2InPostgres.Name);
-            }
+            UserValidator.ValidateUser(foundUser4InMongo, foundUser4InPostgres, "Пользователь 4");
             #endregion
 
-            #region РћР‘РќРћР’Р›Р•РќРР• (UPDATE) - РР·РјРµРЅРµРЅРёРµ РґР°РЅРЅС‹С… СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёС… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№
+            #region ОБНОВЛЕНИЕ (UPDATE)
             Guid targetGuid = Guid.Parse("72454706-dabd-44b2-b1ee-d38fe6c4a3e7");
             
-            User userToUpdate = null;
-            
-            try
-            {
-                userToUpdate = mongoStorage.GetUser(targetGuid);
-            }
-            catch (Exception ex)
-            {
-                userToUpdate = null;
-            }
+            var userToUpdate = mongoStorage.GetUser(targetGuid);
             
             if (userToUpdate != null)
             {
-                string oldName = userToUpdate.Name;
-                string oldStatus = userToUpdate.Updata;
+                Console.WriteLine($"\nОБНОВЛЕНИЕ пользователя:");
+                Console.WriteLine($"  До: {userToUpdate.Name} {userToUpdate.LastName}");
                 
-                userToUpdate.Name = $"{userToUpdate.Name} (РћР±РЅРѕРІР»РµРЅРѕ {DateTime.Now:dd.MM.yyyy HH:mm:ss})";
-                userToUpdate.Updata = "РћР±РЅРѕРІР»РµРЅ";
+                userToUpdate.Name = $"{userToUpdate.Name} (Обновлено)";
+                userToUpdate.LastName = $"{userToUpdate.LastName} (Обновлено)";
+                userToUpdate.Updata = "Обновлен";
                 
                 mongoStorage.SaveUser(userToUpdate);
                 postgresStorage.SaveUser(userToUpdate);
                 
-                var updatedUserMongo = mongoStorage.GetUser(userToUpdate.Id);
-                var updatedUserPostgres = postgresStorage.GetUser(userToUpdate.Id);
+                Console.WriteLine($"  После: {userToUpdate.Name} {userToUpdate.LastName}");
+                Console.WriteLine($"  GUID: {userToUpdate.Id} (не изменен)");
             }
             #endregion
 
-            #region РЈР”РђР›Р•РќРР• (DELETE) - РЈРґР°Р»РµРЅРёРµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РїРѕ GUID
+            #region УДАЛЕНИЕ (DELETE)
             Guid deleteTargetGuid = Guid.Parse("d4a8f2b4-c775-418b-b24a-d96567b2b8a9");
             
-            User userToDelete = null;
-            
-            try
-            {
-                userToDelete = mongoStorage.GetUser(deleteTargetGuid);
-            }
-            catch (Exception ex)
-            {
-                userToDelete = null;
-            }
+            var userToDelete = mongoStorage.GetUser(deleteTargetGuid);
             
             if (userToDelete != null)
             {
+                Console.WriteLine($"\nУДАЛЕНИЕ пользователя:");
+                Console.WriteLine($"  Id: {userToDelete.Id}");
+                Console.WriteLine($"  Name: {userToDelete.Name}");
+                Console.WriteLine($"  LastName: {userToDelete.LastName}");
+                
                 mongoStorage.DeleteUser(deleteTargetGuid);
                 postgresStorage.DeleteUser(deleteTargetGuid);
+                
+                Console.WriteLine($"  Удален из обеих БД");
             }
             #endregion
-
 
             Console.ReadKey();
         }

@@ -25,6 +25,12 @@ namespace Bridge.Model
         public string Name { get; set; } = string.Empty;
         
         /// <summary>
+        /// Фамилия пользователя
+        /// </summary>
+        [BsonElement("lastname")]
+        public string LastName { get; set; } = string.Empty;
+        
+        /// <summary>
         /// Информация об обновлении
         /// </summary>
         [BsonElement("updata")]
