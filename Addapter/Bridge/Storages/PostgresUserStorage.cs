@@ -13,7 +13,7 @@ using Npgsql;
 namespace Bridge.Storages
 {
     //Работа с Postgres
-    internal class PostgresUserStorage: IUserStorage
+    internal class PostgresUserStorage : IUserStorage
     {
         /// <summary>
         /// Строка подключения к базе
@@ -25,12 +25,33 @@ namespace Bridge.Storages
             //Ждем подключения к Postgres
             InitiolalizeDataBase().Wait();
         }
-        private async Task InitiolalizeDataBase() 
+        private async Task InitiolalizeDataBase()
         {
             using var connection = new NpgsqlConnection(connectForPostgres);
             await connection.OpenAsync();
+            //Команда поиска таблицы в Postgres
+            string findTable = @"SELECT EXISTS (SELECT FROM information_schema.tables  WHERE table_name = 'users')";
             //Проверка существования таблицы в базе
-            var findTable = @"SELECT EXISTS (SELECT FROM information_schema.tables  WHERE table_name = 'users')";
+            using var command = new NpgsqlCommand(findTable, connection);
+            var searchResult = await command.ExecuteScalarAsync();
+            int tableCount;
+            bool result = int.TryParse(searchResult?.ToString(), out tableCount);
+            var createTable = @"
+                    CREATE TABLE IF NOT EXISTS users (
+                        id UUID PRIMARY KEY,
+                        name VARCHAR(255) NOT NULL,
+                        updata VARCHAR(255),
+                        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                    )";
+            switch (result)
+            {
+                case true:
+                    break;
+                case false:
+
+                    break;
+            }
+
 
         }
         /// <summary>
@@ -67,6 +88,6 @@ namespace Bridge.Storages
         public void DeleteUser(Guid userId)
         {
             Console.WriteLine($"Пользователь {userId} удален");
-        }       
+        }
     }
 }
