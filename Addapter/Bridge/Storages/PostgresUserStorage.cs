@@ -8,8 +8,11 @@ using Bridge.Interface;
 using Bridge.Model;
 using Bridge.Services;
 
+using Npgsql;
+
 namespace Bridge.Storages
 {
+    //Работа с Postgres
     internal class PostgresUserStorage: IUserStorage
     {
         /// <summary>
@@ -19,6 +22,16 @@ namespace Bridge.Storages
         public PostgresUserStorage(string connectForPostgres)
         {
             this.connectForPostgres = connectForPostgres;
+            //Ждем подключения к Postgres
+            InitiolalizeDataBase().Wait();
+        }
+        private async Task InitiolalizeDataBase() 
+        {
+            using var connection = new NpgsqlConnection(connectForPostgres);
+            await connection.OpenAsync();
+            //Проверка существования таблицы в базе
+            var findTable = @"SELECT EXISTS (SELECT FROM information_schema.tables  WHERE table_name = 'users')";
+
         }
         /// <summary>
         /// Найти пользователя
@@ -51,29 +64,9 @@ namespace Bridge.Storages
         /// Удалить пользователя
         /// </summary>
         /// <param name="userId"></param>
-        public void DeleteUser(string userId)
+        public void DeleteUser(Guid userId)
         {
             Console.WriteLine($"Пользователь {userId} удален");
-        }
-
-        public Task SaveSpaceCountResultAsync(MongoSpaceCountResult result)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task SaveSpaceCountResultsAsync(MongoSpaceCountResult[] results)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string?> GetFileContentAsync(string filePath)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<MongoSpaceCountResult>> GetAllSpaceCountResultsAsync()
-        {
-            throw new NotImplementedException();
-        }
+        }       
     }
 }

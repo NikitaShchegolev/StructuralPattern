@@ -21,11 +21,12 @@ namespace Bridge
 
             // Создаем строку подключения к MongoDB
             string mongoConnectionString = "mongodb://admin:xxx711717XXX@62.60.156.138:32017/?authSource=admin&directConnection=true";
-            string mongoDatabaseName = "space_counter";
+            string postgresConnectionString = "Host=62.60.156.138;Port=30001;Database=postgres;Username=postgres;Password=xxx711717";
+            string mongoDatabaseName = "Users";
             string mongoCollectionName = "CreateUsers";
 
-            IMongoDBService mongoDBService = new MongoUserStorage(mongoConnectionString, mongoDatabaseName, mongoCollectionName);
-            ISpaceCounterService spaceCounterService = new SpaceCounterService( mongoDBService);
+            IUserStorage mongoDBService = new MongoUserStorage(mongoConnectionString, mongoDatabaseName);
+            IUserStorage postgresDBService = new PostgresUserStorage(postgresConnectionString);
 
 
             // Подсчет пробелов во всех файлах которые содержаться в папке TextFile
@@ -46,56 +47,5 @@ namespace Bridge
 
             Console.ReadKey();
         }
-    }
-}
-
-
-
-public class SpaceCounterService : ISpaceCounterService
-{
-
-
-    private IMongoDBService _collection;
-
-    /// <summary>
-    /// Конструктор сервиса подсчета пробелов
-    /// </summary>
-    /// <param name="postgreSQLService">Сервис PostgreSQL (опционально)</param>
-
-
-    public SpaceCounterService(IMongoDBService mongoDBService)
-    {
-        this._collection = mongoDBService;
-    }
-
-    public Task<int[]> CountSpacesInFiles(string[] filePaths)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task CountSpacesInFolder(string folderPath)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task CountSpacesInRemoteFolder(string remoteDirectory)
-    {
-        
-
-            // Создаем результат для сохранения в PostgreSQL
-            var spaceCountResult = new MongoSpaceCountResult
-            {
-                FilePath = remoteDirectory,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            var mongoResult = new MongoSpaceCountResult
-            {
-                ProcessingTimeMs = spaceCountResult.ProcessingTimeMs,
-                CreatedAt = spaceCountResult.CreatedAt
-            };
-            await _collection.SaveSpaceCountResultAsync(mongoResult);
-            Console.WriteLine("Результат успешно сохранен в MongoDB");
-
     }
 }

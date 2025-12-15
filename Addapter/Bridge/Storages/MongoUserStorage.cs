@@ -1,42 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
 using Bridge.Interface;
 using Bridge.Model;
-using Bridge.Services;
 
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 
-using SharpCompress.Common;
-
 namespace Bridge.Storages
 {
-    public class MongoUserStorage :  IMongoDBService
+    public class MongoUserStorage : IUserStorage
     {
-        /// <summary>
-        /// Строка подключения к базе
-        /// </summary>
-        private readonly IMongoCollection<MongoSpaceCountResult> _collection;
-        private readonly IMongoDBService? _mongoDBService;
+        private readonly IMongoDatabase _dataBase;
 
-        /// <summary>
-        /// Конструктор сервиса MongoDB
-        /// </summary>
-        /// <param name="connectionString">Строка подключения к базе данных MongoDB</param>
-        /// <param name="databaseName">Имя базы данных</param>
-        /// <param name="collectionName">Имя коллекции</param>
-        public MongoUserStorage(string connectionString, string databaseName, string collectionName, IMongoDBService? mongoDBService = null)
+        public MongoUserStorage(string connectionString, string dataBase)
         {
+            //Добавляем клиента MongoDb
             var client = new MongoClient(connectionString);
-            var database = client.GetDatabase(databaseName);
-            _collection = database.GetCollection<MongoSpaceCountResult>(collectionName);
-            _mongoDBService = mongoDBService;
+            //Подключаемся к базе
+            _dataBase = client.GetDatabase(dataBase);
         }
         /// <summary>
         /// Найти пользователя
@@ -45,17 +32,22 @@ namespace Bridge.Storages
         /// <returns>Имя пользователя</returns>
         public List<User> FindUsers(Func<User, bool> predicate)
         {
-            return new List<User>();
+            //Получаем всех пользователей  в  подпапке "Users" базы "Users" - надо исправить...
+            IMongoCollection<User> collections  = _dataBase.GetCollection<User>("Users");
+            Expression<Func<User,bool>> filter = user => true;
+            List<User> allUsers = collections.Find(filter).ToList();
+            return allUsers.Where(predicate).ToList();
         }
         /// <summary>
-        /// Получить Guid пользователя
+        /// Получить Guid пользователя по Guid
         /// </summary>
         /// <param name="userId"></param>
         /// <returns>Guid пользователя</returns>
         public User GetUser(Guid userId)
         {
-            Console.WriteLine($"Id пользователя {userId}");
-            return new User() { Id = userId, Name = "Пользователь 3. Mongo User" };
+            IMongoCollection<User> collection = _dataBase.GetCollection<User>("Users");
+            FilterDefinition<User> filter = Builders<User>.Filter.Eq(x => x.Id, userId);
+            return collection.Find(filter).FirstOrDefault();
         }
         /// <summary>
         /// Сохранить пользователя в базе
@@ -63,33 +55,55 @@ namespace Bridge.Storages
         /// <param name="user"></param>
         public void SaveUser(User user)
         {
-            Console.WriteLine("Пользователь сохранен");
-        }
-        /// <summary>
-        /// Удалить пользователя
-        /// </summary>
-        /// <param name="userId"></param>
-        public void DeleteUser(string userId)
-        {
-            Console.WriteLine($"Пользователь {userId} удален");
+            //получение коллекции
+            IMongoCollection<User> collection = _dataBase.GetCollection<User>("Users");
+            //фильтр пользователя по его Id
+            //Builders<User>.Filter.Eq - фильтр в Mongo db
+            FilterDefinition<User> filterById = Builders<User>.Filter.Eq(x => x.Id,user.Id);
+            var existUserById = collection.Find(filterById).FirstOrDefault();
+
+            //Первая проверка: Существует ли пользователь с таким ID то тогда обновляются данные пользователя
+            switch (existUserById != null)
+            {
+                case true:
+                    collection.ReplaceOne(filterById, user);//обновление данных пользователя
+                                                            //по данным передаваемым в метод если такой id
+                                                            //если id не найден то просто выход из условия
+                    return;
+            }
+            //Сравнение пользовательских данных с передаваемыми в метод данными из User и если данные есть то filterByData появляется дубликат
+            FilterDefinition<User> filterByData = Builders<User>.Filter.And
+                (
+                Builders<User>.Filter.Eq(x=>x.Name, user.Name),
+                Builders<User>.Filter.Eq(x=>x.LastName, user.LastName),
+                Builders<User>.Filter.Eq(x=>x.Updata, user.Updata)
+                );
+
+            var duplicateUser = collection.Find(filterByData).ToList();
+            int count = 0;
+            //Выод дубликатов
+            duplicateUser.ForEach(x => { Console.WriteLine($"Дубликат - {count++}., {x}"); });
+            switch (duplicateUser.FirstOrDefault() != null)
+            {
+                case true:
+                    return;// Найден дубликат - выходим без создания
+            }
+            collection.InsertOne(user);
         }
 
         /// <summary>
-        /// Сохраняет результат подсчета пробелов в базе данных MongoDB
+        /// Удалить пользователя
         /// </summary>
-        /// <param name="result">Результат подсчета пробелов</param>
-        /// <returns>Задача</returns>
-        public async Task SaveSpaceCountResultAsync(MongoSpaceCountResult result)
+        /// <param name="userId">GUID Пользователя</param>
+        public void DeleteUser(Guid userId)
         {
-            var mongoResult = new MongoSpaceCountResult
-            {
-                Id = Guid.NewGuid(),
-                SpaceCount = result.SpaceCount,
-                
-            };
-            await _mongoDBService.SaveSpaceCountResultAsync(mongoResult);
+            //Подключиться к коллекции 
+            IMongoCollection<User> collection = _dataBase.GetCollection<User>("User");
+            //Найти через сравнение нужный id
+            FilterDefinition<User> filter = Builders<User>.Filter.Eq(x => x.Id, userId);
+            //Удалить эту запись по отфильтрованному значению
+            collection.DeleteOne(filter);
         }
-        
     }
 }
 

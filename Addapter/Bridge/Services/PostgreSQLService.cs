@@ -10,7 +10,7 @@ using Npgsql;
 
 namespace Bridge.Services
 {
-    public class PostgreSQLService : IPostgreSQLService
+    public class PostgreSQLService
     {
         private readonly string _connectionString;
 
@@ -23,27 +23,7 @@ namespace Bridge.Services
             _connectionString = connectionString;
         }
 
-        /// <summary>
-        /// Сохраняет результат подсчета пробелов в базе данных
-        /// </summary>
-        /// <param name="result">Результат подсчета пробелов</param>
-        /// <returns>Задача</returns>
-        public async Task SaveSpaceCountResultAsync(MongoSpaceCountResult result)
-        {
-            using var connection = new NpgsqlConnection(_connectionString);
-            await connection.OpenAsync();
-
-            using var command = new NpgsqlCommand(
-                "INSERT INTO space_count_results (file_path, space_count, processing_time_ms, created_at) VALUES (@file_path, @space_count, @processing_time_ms, @created_at)",
-                connection);
-
-            command.Parameters.AddWithValue("@file_path", result.FilePath);
-            command.Parameters.AddWithValue("@space_count", result.SpaceCount);
-            command.Parameters.AddWithValue("@processing_time_ms", result.ProcessingTimeMs);
-            command.Parameters.AddWithValue("@created_at", result.CreatedAt);
-
-            await command.ExecuteNonQueryAsync();
-        }
+        
 
         /// <summary>
         /// Сохраняет в базе данных
@@ -102,34 +82,6 @@ namespace Bridge.Services
             return result?.ToString();
         }
 
-        /// <summary>
-        /// Получает все результаты подсчета пробелов из базы данных
-        /// </summary>
-        /// <returns>Список результатов подсчета пробелов</returns>
-        public async Task<List<MongoSpaceCountResult>> GetAllSpaceCountResultsAsync()
-        {
-            using var connection = new NpgsqlConnection(_connectionString);
-            await connection.OpenAsync();
-
-            using var command = new NpgsqlCommand(
-                "SELECT id, file_path, space_count, processing_time_ms, created_at FROM space_count_results ORDER BY created_at DESC",
-                connection);
-
-            var results = new List<MongoSpaceCountResult>();
-            using var reader = await command.ExecuteReaderAsync();
-            while (await reader.ReadAsync())
-            {
-                results.Add(new MongoSpaceCountResult
-                {
-                    Id = Guid.NewGuid(),
-                    FilePath = reader.GetString(1),
-                    SpaceCount = reader.GetInt32(2),
-                    ProcessingTimeMs = reader.GetInt64(3),
-                    CreatedAt = reader.GetDateTime(4)
-                });
-            }
-
-            return results;
-        }
+        
     }
 }

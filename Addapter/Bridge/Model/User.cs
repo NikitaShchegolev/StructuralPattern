@@ -8,11 +8,25 @@ namespace Bridge.Model
 {
     public class User
     {
-        //Id
+        /// <summary>
+        /// Id пользователя
+        /// </summary>
         public Guid Id { get; set; }
-        //Имя
+        /// <summary>
+        /// Имя пользователя
+        /// </summary>
         public string Name { get; set; }
+        /// <summary>
+        /// Фамилия
+        /// </summary>
+        public string LastName { get; set; }
+        /// <summary>
+        /// Обновление
+        /// </summary>
         public string Updata { get; set; }
+        /// <summary>
+        /// Удаление пользователя
+        /// </summary>
         public string DeleteUsers { get; set; }
     }
 }
