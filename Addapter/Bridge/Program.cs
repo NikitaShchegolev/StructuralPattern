@@ -25,8 +25,8 @@ namespace Bridge
             string mongoConnectionString = "mongodb://admin:xxx711717XXX@62.60.156.138:32017/?authSource=admin&directConnection=true";
             string mongoDatabaseName = "Users";
 
-            string postgresConnectionString = "Host=62.60.156.138;Port=30001;Database=postgres;Username=postgres;Password=xxx711717;";
-            
+            string postgresConnectionString = "Host=78.40.217.5;Port=5432;Database=toolsdb;Username=toolsdb;Password=xxx711717;";
+
             IUserStorage mongoStorage = new MongoUserStorage(mongoConnectionString, mongoDatabaseName);
             IUserStorage postgresStorage = new PostgresUserStorage(postgresConnectionString);
             
