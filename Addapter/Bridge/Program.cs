@@ -36,7 +36,7 @@ namespace Bridge
             #region Проверка всех существующих пользователей
              List<User> userMogo = UserService.ValidateAllUsersMongo(mongoStorage);
             Console.WriteLine(userMogo.Count);
-             List<User> userPostgres = UserService.ValidateAllUsersPostgres(mongoStorage);
+             List<User> userPostgres = UserService.ValidateAllUsersPostgres(postgresStorage);
             Console.WriteLine(userPostgres.Count);
             #endregion
 
