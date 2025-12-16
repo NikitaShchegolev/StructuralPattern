@@ -25,7 +25,7 @@ namespace Bridge
             string mongoConnectionString = "mongodb://admin:xxx711717XXX@62.60.156.138:32017/?authSource=admin&directConnection=true";
             string mongoDatabaseName = "Users";
 
-            string postgresConnectionString = "Host=78.40.217.5;Port=5432;Database=toolsdb;Username=toolsdb;Password=xxx711717;";
+            string postgresConnectionString = "Host=78.40.217.5;Port=5432;Database=toolsdb;Username=postgres;Password=xxx711717;";
 
             IUserStorage mongoStorage = new MongoUserStorage(mongoConnectionString, mongoDatabaseName);
             IUserStorage postgresStorage = new PostgresUserStorage(postgresConnectionString);
@@ -39,15 +39,15 @@ namespace Bridge
 
             #region СОЗДАНИЕ НОВЫХ ПОЛЬЗОВАТЕЛЕЙ
             var allExistingUsers = mongoStorage.FindUsers(u => true);
-            
-            var existingPetrov = allExistingUsers.FirstOrDefault(u => 
+
+            var existingPetrov = allExistingUsers.FirstOrDefault(u =>
                 u.Name == "Петр" && u.LastName == "Петров"
             );
-            
-            var existingSidorova = allExistingUsers.FirstOrDefault(u => 
+
+            var existingSidorova = allExistingUsers.FirstOrDefault(u =>
                 u.Name == "Анна" && u.LastName == "Сидорова"
             );
-            
+
             User user3;
             if (existingPetrov != null)
             {
@@ -65,12 +65,12 @@ namespace Bridge
                     DeleteUsers = "Нет",
                     CreatedAt = DateTime.UtcNow
                 };
-                
+
                 mongoStorage.SaveUser(user3);
                 postgresStorage.SaveUser(user3);
                 Console.WriteLine($"Создан пользователь: {user3.Name} {user3.LastName} (GUID: {user3.Id})");
             }
-            
+
             User user4;
             if (existingSidorova != null)
             {
@@ -88,7 +88,7 @@ namespace Bridge
                     DeleteUsers = "Нет",
                     CreatedAt = DateTime.UtcNow
                 };
-                
+
                 mongoStorage.SaveUser(user4);
                 postgresStorage.SaveUser(user4);
                 Console.WriteLine($"Создан пользователь: {user4.Name} {user4.LastName} (GUID: {user4.Id})");
@@ -97,37 +97,37 @@ namespace Bridge
 
             #region ЧТЕНИЕ (READ)
             Console.WriteLine("\nЧТЕНИЕ новых пользователей:");
-            
+
             var foundUser3InMongo = mongoStorage.GetUser(user3.Id);
             var foundUser3InPostgres = postgresStorage.GetUser(user3.Id);
             UserValidator.ValidateUser(foundUser3InMongo, foundUser3InPostgres, "Пользователь 3");
-            
+
             var foundUser4InMongo = mongoStorage.GetUser(user4.Id);
             var foundUser4InPostgres = postgresStorage.GetUser(user4.Id);
             UserValidator.ValidateUser(foundUser4InMongo, foundUser4InPostgres, "Пользователь 4");
             #endregion
 
             #region ОБНОВЛЕНИЕ (UPDATE)
-            Guid targetGuid = Guid.Parse("72454706-dabd-44b2-b1ee-d38fe6c4a3e7");
-            
+            Guid targetGuid = Guid.Parse("7156b71c-6546-4201-8bdc-32f05c8ca881");
+
             Console.WriteLine($"\nПопытка обновления пользователя с GUID: {targetGuid}");
-            
+
             // Проверяем существование пользователя В СПИСКЕ всех пользователей
             var allUsers = mongoStorage.FindUsers(u => true);
             var userToUpdate = allUsers.FirstOrDefault(u => u.Id == targetGuid);
-            
+
             if (userToUpdate != null)
             {
                 Console.WriteLine($"ОБНОВЛЕНИЕ пользователя:");
                 Console.WriteLine($"  До: {userToUpdate.Name} {userToUpdate.LastName}");
-                
+
                 userToUpdate.Name = $"{userToUpdate.Name} (Обновлено)";
                 userToUpdate.LastName = $"{userToUpdate.LastName} (Обновлено)";
                 userToUpdate.Updata = "Обновлен";
-                
+
                 mongoStorage.SaveUser(userToUpdate);
                 postgresStorage.SaveUser(userToUpdate);
-                
+
                 Console.WriteLine($"  После: {userToUpdate.Name} {userToUpdate.LastName}");
                 Console.WriteLine($"  GUID: {userToUpdate.Id} (не изменен)");
             }
@@ -138,24 +138,24 @@ namespace Bridge
             #endregion
 
             #region УДАЛЕНИЕ (DELETE)
-            Guid deleteTargetGuid = Guid.Parse("d4a8f2b4-c775-418b-b24a-d96567b2b8a9");
-            
+            Guid deleteTargetGuid = Guid.Parse("7156b71c-6546-4201-8bdc-32f05c8ca881");
+
             Console.WriteLine($"\nПопытка удаления пользователя с GUID: {deleteTargetGuid}");
-            
+
             // Проверяем существование пользователя В СПИСКЕ всех пользователей
             var allUsersForDelete = mongoStorage.FindUsers(u => true);
             var userToDelete = allUsersForDelete.FirstOrDefault(u => u.Id == deleteTargetGuid);
-            
+
             if (userToDelete != null)
             {
                 Console.WriteLine($"УДАЛЕНИЕ пользователя:");
                 Console.WriteLine($"  Id: {userToDelete.Id}");
                 Console.WriteLine($"  Name: {userToDelete.Name}");
                 Console.WriteLine($"  LastName: {userToDelete.LastName}");
-                
+
                 mongoStorage.DeleteUser(deleteTargetGuid);
                 postgresStorage.DeleteUser(deleteTargetGuid);
-                
+
                 Console.WriteLine($"  Удален из обеих БД");
             }
             else
