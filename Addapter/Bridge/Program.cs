@@ -166,9 +166,6 @@ namespace Bridge
             #endregion
 
             Console.ReadKey();
-
-
-            Console.ReadKey();
         }
     }
 }
