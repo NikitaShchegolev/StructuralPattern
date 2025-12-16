@@ -24,22 +24,22 @@ namespace Bridge.Model
         /// Имя пользователя
         /// </summary>
         [BsonElement("Name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         /// <summary>
         /// Фамилия
         /// </summary>
         [BsonElement("LastName")]
-        public string LastName { get; set; }
+        public string LastName { get; set; } = string.Empty;
         /// <summary>
         /// Обновление
         /// </summary>
         [BsonElement("Updata")]
-        public string Updata { get; set; }
+        public string Updata { get; set; } = string.Empty;
         /// <summary>
         /// Удаление пользователя
         /// </summary>
         [BsonElement("DeleteUsers")]
-        public string DeleteUsers { get; set; }
+        public string DeleteUsers { get; set; } = string.Empty;
 
         [BsonElement("CreatedAt")] //= "Это поле - ID документа"
         [BsonDateTimeOptions(Kind =DateTimeKind.Utc)] //= "Храни ID как строку, а не ObjectId"
