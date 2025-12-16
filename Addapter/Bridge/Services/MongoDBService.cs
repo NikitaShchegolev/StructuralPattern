@@ -14,7 +14,7 @@ using Npgsql;
 
 namespace Bridge.Services
 {
-    public class MongoDBService : IMongoDBService
+    public class MongoDBService
     {
         private readonly IMongoCollection<MongoSpaceCountResult> _collection;
 
@@ -30,16 +30,5 @@ namespace Bridge.Services
             var database = client.GetDatabase(databaseName);
             _collection = database.GetCollection<MongoSpaceCountResult>(collectionName);
         }
-
-        /// <summary>
-        /// Сохраняет результат подсчета пробелов в базе данных MongoDB
-        /// </summary>
-        /// <param name="result">Результат подсчета пробелов</param>
-        /// <returns>Задача</returns>
-        public async Task SaveSpaceCountResultAsync(MongoSpaceCountResult result)
-        {
-            await _collection.InsertOneAsync(result);
-        }
-       
     }
 }

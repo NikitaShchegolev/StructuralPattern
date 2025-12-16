@@ -15,12 +15,12 @@ namespace Bridge
             var device = new Tv();
             var remote = new Remote(device);
             remote.TogglePower();
-            
+
             var device2 = new Radio();
             remote = new Remote(device2);
             remote.TogglePower();
             #endregion
-            
+
             #region Конфигурация подключений
             string mongoConnectionString = "mongodb://admin:xxx711717XXX@62.60.156.138:32017/?authSource=admin&directConnection=true";
             string mongoDatabaseName = "Users";
@@ -29,7 +29,7 @@ namespace Bridge
 
             IUserStorage mongoStorage = new MongoUserStorage(mongoConnectionString, mongoDatabaseName);
             IUserStorage postgresStorage = new PostgresUserStorage(postgresConnectionString);
-            
+
             Console.WriteLine("Подключения к MongoDB и PostgreSQL установлены\n");
             #endregion
 
@@ -112,59 +112,30 @@ namespace Bridge
 
             Console.WriteLine($"\nПопытка обновления пользователя с GUID: {targetGuid}");
 
-            // Проверяем существование пользователя В СПИСКЕ всех пользователей
+            //Проверяем существование пользователя В СПИСКЕ всех пользователей
+
             var allUsers = mongoStorage.FindUsers(u => true);
             var userToUpdate = allUsers.FirstOrDefault(u => u.Id == targetGuid);
+            Console.WriteLine($"ОБНОВЛЕНИЕ пользователя:");
+            Console.WriteLine($"  До: {userToUpdate.Name} {userToUpdate.LastName}");
+            userToUpdate.Name = $"{userToUpdate.Name} (Обновлено)";
+            userToUpdate.LastName = $"{userToUpdate.LastName} (Обновлено)";
+            userToUpdate.Updata = "Обновлен";
+            mongoStorage.SaveUser(userToUpdate);
+            postgresStorage.SaveUser(userToUpdate);
 
-            if (userToUpdate != null)
-            {
-                Console.WriteLine($"ОБНОВЛЕНИЕ пользователя:");
-                Console.WriteLine($"  До: {userToUpdate.Name} {userToUpdate.LastName}");
+            Console.WriteLine($"  Обновлено: {userToUpdate.Name} {userToUpdate.LastName}");
 
-                userToUpdate.Name = $"{userToUpdate.Name} (Обновлено)";
-                userToUpdate.LastName = $"{userToUpdate.LastName} (Обновлено)";
-                userToUpdate.Updata = "Обновлен";
-
-                mongoStorage.SaveUser(userToUpdate);
-                postgresStorage.SaveUser(userToUpdate);
-
-                Console.WriteLine($"  После: {userToUpdate.Name} {userToUpdate.LastName}");
-                Console.WriteLine($"  GUID: {userToUpdate.Id} (не изменен)");
-            }
-            else
-            {
-                Console.WriteLine($"Пользователь с GUID {targetGuid} НЕ НАЙДЕН. Обновление пропущено.");
-            }
             #endregion
 
             #region УДАЛЕНИЕ (DELETE)
-            Guid deleteTargetGuid = Guid.Parse("7156b71c-6546-4201-8bdc-32f05c8ca881");
-
-            Console.WriteLine($"\nПопытка удаления пользователя с GUID: {deleteTargetGuid}");
-
-            // Проверяем существование пользователя В СПИСКЕ всех пользователей
+            string guidString = "7156b71c-6546-4201-8bdc-32f05c8ca881";
+            Guid deleteTargetGuid = Guid.Parse(guidString);
             var allUsersForDelete = mongoStorage.FindUsers(u => true);
             var userToDelete = allUsersForDelete.FirstOrDefault(u => u.Id == deleteTargetGuid);
-
-            if (userToDelete != null)
-            {
-                Console.WriteLine($"УДАЛЕНИЕ пользователя:");
-                Console.WriteLine($"  Id: {userToDelete.Id}");
-                Console.WriteLine($"  Name: {userToDelete.Name}");
-                Console.WriteLine($"  LastName: {userToDelete.LastName}");
-
-                mongoStorage.DeleteUser(deleteTargetGuid);
-                postgresStorage.DeleteUser(deleteTargetGuid);
-
-                Console.WriteLine($"  Удален из обеих БД");
-            }
-            else
-            {
-                Console.WriteLine($"Пользователь с GUID {deleteTargetGuid} НЕ НАЙДЕН. Удаление пропущено.");
-            }
+            Console.WriteLine($"  Удален из обеих БД");
             #endregion
 
-            Console.WriteLine("\nПрограмма завершена");
             Console.ReadKey();
         }
     }

@@ -58,8 +58,8 @@ namespace Bridge.Services
             bool nameMatch = userMongo.Name == userPostgres.Name;
             bool lastNameMatch = userMongo.LastName == userPostgres.LastName;
             
-            Console.WriteLine($"{userName}: {userMongo.Name} {userMongo.LastName}");
-            Console.WriteLine($"  Id: {(idMatch ? "[OK]" : "[ERR]")} | Name: {(nameMatch ? "[OK]" : "[ERR]")} | LastName: {(lastNameMatch ? "[OK]" : "[ERR]")}");
+            //Console.WriteLine($"{userName}: {userMongo.Name} {userMongo.LastName}");
+            //Console.WriteLine($"  Id: {(idMatch ? "[OK]" : "[ERR]")} | Name: {(nameMatch ? "[OK]" : "[ERR]")} | LastName: {(lastNameMatch ? "[OK]" : "[ERR]")}");
         }
     }
 }
