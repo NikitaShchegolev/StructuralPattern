@@ -4,17 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Bridge.Interface;
-using Bridge.Model;
+using Bridge_MongoDB.Interface;
+using Bridge_MongoDB.Model;
 
-namespace Bridge.Repository
+namespace Bridge_MongoDB.Repository
 {
     public abstract class UserRepository
     {
-        /// <summary>
-        /// подключение
-        /// </summary>
-        protected readonly IUserStorage _userStorage;
+        protected readonly IUserStorage _userStorage;//Только чтение
         /// <summary>
         /// обращение классу только через конструктор с параметром IUserStorage
         /// </summary>
@@ -24,21 +21,21 @@ namespace Bridge.Repository
         /// /Абстрактный метод для получения id Пользователя
         /// </summary>
         /// <returns>/Абстрактный метод для получения id Пользователя</returns>
-        public abstract User GetUserById(Guid userID);
+        public abstract User GetUserById();
         /// <summary>
         /// Абстрактный метод для получения создания пользователя
         /// </summary>
         /// <returns>Абстрактный метод для получения создания пользователя</returns>
-        public abstract void CreateUser(User user);
+        public abstract User CreateUser();
         /// <summary>
         /// Абстрактный метод для получения для обновления данных пользователя
         /// </summary>
         /// <returns>Абстрактный метод для получения для обновления данных пользователя</returns>
-        public abstract void UpdateUser(User user);
+        public abstract User UpdateUser();
         /// <summary>
         /// Абстрактный метод для получения для удааления пользователя
         /// </summary>
         /// <returns>Абстрактный метод для получения для удааления пользователя</returns>
-        public abstract void RemoveUser(Guid id);
+        public abstract User RemoveUser();
     }
 }

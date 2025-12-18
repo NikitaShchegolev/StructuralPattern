@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Bridge.Interface;
-using Bridge.Model;
+using Bridge_MongoDB.Interface;
+using Bridge_MongoDB.Model;
 
-namespace Bridge.Repository
+namespace Bridge_MongoDB.Repository
 {
     public class StandartUserRepository : UserRepository
     {
@@ -15,7 +15,7 @@ namespace Bridge.Repository
         /// Конструктор с договором по использованию класса при его использовании, должно быть реализована логика методов
         /// 1. GetUser,
         /// 2. SaveUser,
-        /// 3. DeleteUser,
+        /// 3. DeleteUserForMongo,
         /// 4. FindUsers
         /// </summary>
         /// <param name="userStorage"></param>
@@ -24,21 +24,21 @@ namespace Bridge.Repository
         /// Cоздать пользователя
         /// </summary>
         /// <returns>Cоздать пользователя</returns>
-        public override void CreateUser(User user) { _userStorage.SaveUser(user); }
+        public override User CreateUser() { return new User() { Name = "Пользователь 2"}; }
         /// <summary>
         /// Получить Guid пользователя
         /// </summary>
         /// <returns>Получить Guid пользователя</returns>
-        public override User GetUserById(Guid id) { return _userStorage.GetUser(id); }
+        public override User GetUserById() { return new User() { Id = Guid.NewGuid() }; }
         /// <summary>
         /// Удалить данные пользователя
         /// </summary>
         /// <returns>Удалить данные пользователя</returns>
-        public override void RemoveUser(Guid id) { _userStorage.DeleteUser(id); }
+        public override User RemoveUser() { return new User() { DeleteUsers = "Пользователь 2 удален" }; }
         /// <summary>
         /// Обновить данные пользователя
         /// </summary>
         /// <returns>Обновить данные пользователя</returns>
-        public override void UpdateUser(User user) { _userStorage.SaveUser(user); }
+        public override User UpdateUser() { return new User() { Updata = "Данные пользователя 2 обновлены" }; }
     }
 }

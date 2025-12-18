@@ -7,7 +7,14 @@ using System.Threading.Tasks;
 
 using Bridge.Interface;
 using Bridge.Model;
-using Bridge.Services;
+using Bridge.Repository;
+using Bridge.Service;
+
+using Bridge_Postgres.Storages;
+
+using Microsoft.Extensions.Configuration;
+
+using Microsoft.Extensions.DependencyInjection;
 
 using Npgsql;
 
@@ -42,8 +49,6 @@ namespace Bridge.Storages
                         id UUID PRIMARY KEY,
                         name VARCHAR(255) NOT NULL,
                         lastname VARCHAR(255) NOT NULL,
-                        updata VARCHAR(255),
-                        delete_users VARCHAR(255),
                         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
                     )";
             switch (result)
@@ -68,7 +73,7 @@ namespace Bridge.Storages
         {
             using NpgsqlConnection connection = new NpgsqlConnection(connectForPostgres);
             connection.Open();//открыть соединение
-            string commandWord = @"SELECT id, name, lastname, updata, delete_users, created_at FROM users";
+            string commandWord = @"SELECT id, name, lastname, created_at FROM users";
             using NpgsqlCommand command = new NpgsqlCommand(commandWord, connection);
             using NpgsqlDataReader reader = command.ExecuteReader();
             List<User> allUsers = new List<User>();
@@ -78,10 +83,7 @@ namespace Bridge.Storages
                 {
                     Id = reader.GetGuid("id"),
                     Name = reader.GetString("name"),
-                    LastName = reader.GetString("lastname"),
-                    Updata = reader.IsDBNull("updata") ? string.Empty : reader.GetString("updata"),
-                    DeleteUsers = reader.IsDBNull("delete_users") ? string.Empty : reader.GetString("delete_users"),
-                    CreatedAt = reader.GetDateTime("created_at"),
+                    LastName = reader.GetString("lastname")
                 });
             }
             return allUsers.Where(predicate).ToList();
@@ -95,7 +97,7 @@ namespace Bridge.Storages
         {
             using var connection = new NpgsqlConnection(connectForPostgres);//создание соединения с базой
             connection.Open();//открываю соединение
-            using var command = new NpgsqlCommand(@"SELECT id, name, lastname, updata, delete_users, created_at 
+            using var command = new NpgsqlCommand(@"SELECT id, name, lastname, created_at 
                                           FROM users 
                                           WHERE id = @id", connection);
             command.Parameters.AddWithValue("@id", userId);
@@ -108,10 +110,7 @@ namespace Bridge.Storages
                     {
                         Id = reader.GetGuid("id"),
                         Name = reader.GetString("name"),
-                        LastName = reader.GetString("lastname"),
-                        Updata = reader.IsDBNull("updata") ? string.Empty : reader.GetString("updata"),
-                        DeleteUsers = reader.IsDBNull("delete_users") ? string.Empty : reader.GetString("delete_users"),
-                        CreatedAt = reader.GetDateTime("created_at"),
+                        LastName = reader.GetString("lastname")
                     };
                     return user;
                 case false:
@@ -138,39 +137,32 @@ namespace Bridge.Storages
                     var updateCommand = new NpgsqlCommand(@"UPDATE users 
 SET name = @name, 
 lastname = @lastname, 
-updata = @updata, 
-delete_users = @delete_users,
 created_at = @created_at
 WHERE id = @id", connection);
                     updateCommand.Parameters.AddWithValue("@id", user.Id);
                     updateCommand.Parameters.AddWithValue("@name", user.Name);
                     updateCommand.Parameters.AddWithValue("@lastname", user.LastName);
-                    updateCommand.Parameters.AddWithValue("@updata", user.Updata ?? string.Empty);
-                    updateCommand.Parameters.AddWithValue("@delete_users", user.DeleteUsers ?? string.Empty);
-                    updateCommand.Parameters.AddWithValue("@created_at", user.CreatedAt);
+                    updateCommand.Parameters.AddWithValue("@created_at", DateTime.UtcNow);
                     updateCommand.ExecuteNonQuery();
                     break;
                 case false:
                     // Пользователь с таким GUID НЕ существует - создаем нового
                     var insertCommand = new NpgsqlCommand(@"INSERT INTO users 
-(id, name, lastname, updata, delete_users, created_at)
+(id, name, lastname, created_at)
 VALUES 
-(@id, @name, @lastname, @updata, @delete_users, @created_at)", connection);
+(@id, @name, @lastname, @created_at)", connection);
 
                     insertCommand.Parameters.AddWithValue("@id", user.Id);
                     insertCommand.Parameters.AddWithValue("@name", user.Name);
                     insertCommand.Parameters.AddWithValue("@lastname", user.LastName);
-                    insertCommand.Parameters.AddWithValue("@updata", user.Updata ?? string.Empty);
-                    insertCommand.Parameters.AddWithValue("@delete_users", user.DeleteUsers ?? string.Empty);
-                    insertCommand.Parameters.AddWithValue("@created_at", user.CreatedAt);
-
+                    insertCommand.Parameters.AddWithValue("@created_at", DateTime.UtcNow);
                     insertCommand.ExecuteNonQuery(); // Выполняем команду
                     break;
 
             }
         }
         /// <summary>
-        /// Удалить пользователя
+        /// PostgresUserStorage. Удалить пользователя
         /// </summary>
         /// <param name="userId"></param>
         public void DeleteUser(Guid userId)
@@ -180,7 +172,7 @@ VALUES
             using var updateCommand = new NpgsqlCommand(@"DELETE FROM users WHERE id = @id", connection);
             updateCommand.Parameters.AddWithValue("@id", userId);
             var rowsAffected = updateCommand.ExecuteNonQuery();
-
         }
+                
     }
 }
