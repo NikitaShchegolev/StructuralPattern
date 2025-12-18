@@ -1,7 +1,7 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="Addapter/Addapter.csproj" />
-    <Project Path="Bridge/Bridge.csproj" Id="b37dd4a0-d8e0-46fa-9d63-b7da9a4300be" />
+    <Project Path="Bridge/Bridge_Postgres.csproj" />
     <Project Path="Bridge_MongoDB/Bridge_MongoDB.csproj" />
     <Project Path="Common/Common.csproj" Id="9392a06d-b48c-4022-8d33-b85af646fbc6" />
     <Project Path="Decorator/Decorator.csproj" />

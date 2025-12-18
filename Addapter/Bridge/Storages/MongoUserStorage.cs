@@ -75,8 +75,7 @@ namespace Bridge.Storages
             FilterDefinition<User> filterByData = Builders<User>.Filter.And
                 (
                 Builders<User>.Filter.Eq(x=>x.Name, user.Name),
-                Builders<User>.Filter.Eq(x=>x.LastName, user.LastName),
-                Builders<User>.Filter.Eq(x=>x.Updata, user.Updata)
+                Builders<User>.Filter.Eq(x=>x.LastName, user.LastName)
                 );
 
             var duplicateUser = collection.Find(filterByData).ToList();
